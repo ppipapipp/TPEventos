@@ -119,13 +119,12 @@ def mostrar_menu():
 
 print("\n")
 print("━━   SISTEMA DE GESTIÓN DE EVENTOS   ━━")
+mostrar_menu()
+print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+opcion = input("Elija una opción: ")
 
-while True:
-    mostrar_menu()
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("\n")
-    opcion = input("Elija una opción: ")
-
+while opcion != "9":
+    
     if opcion == "1":
         mostrar_eventos()
 
@@ -169,9 +168,12 @@ while True:
     elif opcion == "8":
         analisis_datos()
 
-    elif opcion == "9":
+    elif opcion == "9": #HACER QUE SE VEA EL CHAU ANTES DE IRTE
         print("¡Chau!")
-        break
 
     else:
         print("Opción inválida. Intente nuevamente.")
+    
+    mostrar_menu()
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    opcion = input("Elija una opción: ")
