@@ -23,28 +23,31 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     eventos.append(evento)
     print("Evento creado con éxito.")
 
+def verificar_evento(indice):
+    if 0<=indice< len(eventos):
+        return True
+    else:
+        return False
 
 def modificar_evento(indice, opcion, nuevo_valor):
     #FUNCIONA MAL, ME DEJA MODIFICAR AUNQUE NO EXISTA EL INDICE, NO VA CON EL MISMO INDICE PORQUE EN LA LISTA EMPIEZA EN 0 Y EN EL MENU EN 1, Y NO LO MODIFICA DE TODAS FORMAS
-    if 0 <= indice < len(eventos):
-        if opcion == 1:   # Artista
-            eventos[indice][0] = nuevo_valor
-        elif opcion == 2: # Estadio
-            eventos[indice][1] = nuevo_valor
-        elif opcion == 3: # Fecha
-            eventos[indice][2] = nuevo_valor
-        elif opcion == 4: # Hora
-            eventos[indice][3] = nuevo_valor
-        elif opcion == 5: # Precio
-            eventos[indice][4] = int(nuevo_valor)
-        elif opcion == 6: # Cantidad de entradas
-            nuevas = int(nuevo_valor)
-            diferencia = nuevas - eventos[indice][5]
-            eventos[indice][5] = nuevas
-            eventos[indice][6] += diferencia
+    if opcion == 1:   # Artista
+        eventos[indice][0] = nuevo_valor
+    elif opcion == 2: # Estadio
+        eventos[indice][1] = nuevo_valor
+    elif opcion == 3: # Fecha
+        eventos[indice][2] = nuevo_valor
+    elif opcion == 4: # Hora
+        eventos[indice][3] = nuevo_valor
+    elif opcion == 5: # Precio
+        eventos[indice][4] = int(nuevo_valor)
+    elif opcion == 6: # Cantidad de entradas
+        nuevas = int(nuevo_valor)
+        diferencia = nuevas - eventos[indice][5]
+        eventos[indice][5] = nuevas
+        eventos[indice][6] += diferencia
         print("Evento modificado.")
-    else:
-        print("Índice de evento inválido.") 
+
 
 def eliminar_evento(indice):
     #PROBABLEMENTE PASE LO MISMO QUE CON MODIFICAR, NO SE SI VA A FUNCIONAR BIEN
@@ -138,12 +141,14 @@ while opcion != "9":
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
     elif opcion == "3":
-        mostrar_eventos()
         indice = int(input("Ingrese el índice del evento a modificar: "))
-        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
-        opcion_mod = int(input("¿Qué desea modificar?: "))
-        nuevo_valor = input("Ingrese el nuevo valor: ")
-        modificar_evento(indice, opcion_mod, nuevo_valor)
+        if verificar_evento(indice):
+            print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
+            opcion_mod = int(input("¿Qué desea modificar?: "))
+            nuevo_valor = input("Ingrese el nuevo valor: ")
+            modificar_evento(indice, opcion_mod, nuevo_valor)
+        else:
+            print("Índice de evento inválido.")        
 
     elif opcion == "4":
         mostrar_eventos()
