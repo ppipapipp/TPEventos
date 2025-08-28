@@ -27,7 +27,7 @@ def mostrar_eventos():
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
     #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
-    #QUE LA FECHA NO SEA ANTERIOR A LA ACTUAL
+    vericacion_fecha(fecha)
     #QUE LA CANTIDAD DE ENTRADAS SEA MAYOR A 0
     evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
     eventos.append(evento)
@@ -98,6 +98,19 @@ def analisis_datos():
     print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
     print("Evento más vendido: ", mas_vendido[0] , (mas_vendido[5] - mas_vendido[6], " entradas vendidas"))
 
+def vericacion_fecha(fecha):
+    hoy = datetime.now().date()
+    fecha_valida = True
+    while fecha_valida:
+        print("La fecha ingresada no puede estar en el pasado. Intente de nuevo.")
+        fecha_veri = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
+        fecha = datetime.strptime(fecha_veri, "%Y-%m-%d")
+        if fecha < hoy:
+            print("La fecha ingresada no puede estar en el pasado. Intente de nuevo.")
+        else:
+            fecha_valida = True
+            return fecha
+#HAY QUE CAMBIAR CUANDO APARECE EL ERROR DE FECHA
 
 def mostrar_menu():
     print("\n🎟️   MENÚ PRINCIPAL  ━━━━━━━━━━━━━━━━━━━")
@@ -110,6 +123,8 @@ def mostrar_menu():
     print("7. Ver entradas vendidas")
     print("8. Análisis de datos")
     print("9. Salir")
+
+
 
 
 
@@ -130,6 +145,7 @@ while opcion != 8:
         artista = input("Ingrese el nombre del artista: ")
         estadio = input("Ingrese el nombre del estadio: ")
         fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
+        fecha = datetime.strptime(fecha, "%Y-%m-%d")
         hora = input("Ingrese la hora del evento (HH:MM): ")
         precio = int(input("Ingrese el precio de la entrada: "))
         cantidad = int(input("Ingrese la cantidad de entradas disponibles: "))
