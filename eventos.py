@@ -23,6 +23,13 @@ def mostrar_eventos():
     if not eventos:
         print("No hay eventos registrados.")
 
+def verificacionindice(indice):
+    if 0 <= indice < len(eventos):
+        return True
+    else:
+        print("Índice inválido.")
+        return False
+
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
@@ -153,6 +160,8 @@ while opcion != 8:
 
     elif opcion == 2:
         indice = int(input("Ingrese el índice del evento a modificar: "))-1
+        while not verificacionindice(indice):
+            indice = int(input("Ingrese un índice válido: "))-1
         print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
         opcion_mod = int(input("¿Qué desea modificar?: "))-1
         nuevo_valor = input("Ingrese el nuevo valor: ")
@@ -162,17 +171,23 @@ while opcion != 8:
     elif opcion == 3:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento a eliminar: "))-1
+        while not verificacionindice(indice):
+            indice = int(input("Ingrese un índice válido: "))-1
         eliminar_evento(indice)
 
     elif opcion == 4:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento: "))-1
+        while not verificacionindice(indice):
+            indice = int(input("Ingrese un índice válido: "))-1
         cantidad = int(input("Cantidad de entradas a vender: "))
         vender_entrada(indice, cantidad)
 
     elif opcion == 5:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento: "))-1
+        while not verificacionindice(indice):
+            indice = int(input("Ingrese un índice válido: "))-1
         cantidad = int(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(indice, cantidad)
 
@@ -191,3 +206,4 @@ while opcion != 8:
     mostrar_menu()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     opcion = int(input("Elija una opción: "))-1
+
