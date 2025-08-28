@@ -12,8 +12,14 @@ eventos = [
 
 def mostrar_eventos():
     print("\n📋   LISTA DE EVENTOS  ━━━━━━━━━━━━━━━━")
-    for i, evento in enumerate(eventos): #NO SÉ SI SE PUEDE USAR ENUMERATE
-        print(i+1,". Artista: ", evento[0], " Estadio: ", evento[1], " Fecha: ", evento[2], " Hora: ", evento[3], " Precio: $", evento[4], " Entradas disponibles: ", evento[6])
+    for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA
+       print(f"{i+1:>3}. "
+      f"Artista: {evento[0]:<15} "
+      f"Estadio: {evento[1]:<20} "
+      f"Fecha: {evento[2]:<12} "
+      f"Hora: {evento[3]:<5} "
+      f"Precio: ${evento[4]:<8} "
+      f"Entradas disponibles: {evento[6]:<5}")
     if not eventos:
         print("No hay eventos registrados.")
 
