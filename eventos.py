@@ -19,12 +19,19 @@ def mostrar_eventos():
 
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
+    #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
+    #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
+    #QUE LA FECHA NO SEA ANTERIOR A LA ACTUAL
+    #QUE LA CANTIDAD DE ENTRADAS SEA MAYOR A 0
     evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
     eventos.append(evento)
     print("Evento creado con éxito.")
 
 
 def modificar_evento(indice, opcion, nuevo_valor):
+        #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
+        #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
+        #QUE LA FECHA NO SEA ANTERIOR A LA ACTUAL
     if opcion == 5:
         nuevo_valor=int(nuevo_valor)
         diferencia = nuevo_valor - eventos[indice][opcion] #CALCULO LA DIFERENCIA ENTRE LA CANT ANTERIORY ACTUAL DE ENTRADAS
