@@ -34,7 +34,6 @@ def verificacionindice(indice):
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
     #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
-    vericacion_fecha(fecha)
     #QUE LA CANTIDAD DE ENTRADAS SEA MAYOR A 0
     evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
     eventos.append(evento)
@@ -100,10 +99,13 @@ def analisis_datos():
     promedio = total_vendidas / len(eventos)
     mas_vendido = max(eventos, key=lambda x: x[5] - x[6])
 
-    print("\nAnálisis de datos:")
-    print("Total entradas vendidas: ",total_vendidas)
-    print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
-    print("Evento más vendido: ", mas_vendido[0] , (mas_vendido[5] - mas_vendido[6], " entradas vendidas"))
+    if total_vendidas == 0:
+        print("No se han vendido entradas aún.")
+    else:
+        print("\nAnálisis de datos:")
+        print("Total entradas vendidas: ",total_vendidas)
+        print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
+        print("Evento más vendido:", mas_vendido[0] , (mas_vendido[5] - mas_vendido[6], "entradas vendidas"))
 
 def vericacion_fecha(fecha):
     hoy = datetime.now().date()
@@ -119,6 +121,15 @@ def vericacion_fecha(fecha):
             return fecha
 #HAY QUE CAMBIAR CUANDO APARECE EL ERROR DE FECHA
 
+def validar_fecha():
+    today = datetime.today().date()
+    fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
+    input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+    while input_date < today:
+        fecha = input("Error, esta fecha ya a pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ")
+        input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+    return fecha
+
 def mostrar_menu():
     print("\n🎟️   MENÚ PRINCIPAL  ━━━━━━━━━━━━━━━━━━━")
     print("1. Mostrar eventos")
@@ -130,7 +141,6 @@ def mostrar_menu():
     print("7. Ver entradas vendidas")
     print("8. Análisis de datos")
     print("9. Salir")
-
 
 
 
@@ -151,20 +161,26 @@ while opcion != 8:
     elif opcion == 1:
         artista = input("Ingrese el nombre del artista: ")
         estadio = input("Ingrese el nombre del estadio: ")
-        fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
-        fecha = datetime.strptime(fecha, "%Y-%m-%d")
+        fecha = validar_fecha()
         hora = input("Ingrese la hora del evento (HH:MM): ")
         precio = int(input("Ingrese el precio de la entrada: "))
         cantidad = int(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
     elif opcion == 2:
-        indice = int(input("Ingrese el índice del evento a modificar: "))-1
+        for i, artista in enumerate(eventos):
+            print(i+1,". ", artista[0], sep="")
+        indice = int(input("Seleccione el evento a modificar: "))-1
         while not verificacionindice(indice):
             indice = int(input("Ingrese un índice válido: "))-1
         print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
         opcion_mod = int(input("¿Qué desea modificar?: "))-1
-        nuevo_valor = input("Ingrese el nuevo valor: ")
+        while opcion_mod < 0 or opcion_mod > 5:
+            opcion_mod = int(input("Opción inválida. Ingrese una opción válida: "))-1
+        if opcion_mod == 2:
+            nuevo_valor = validar_fecha()
+        else:
+            nuevo_valor = input("Ingrese el nuevo valor: ")
         modificar_evento(indice, opcion_mod, nuevo_valor)
  
 
