@@ -65,6 +65,7 @@ def vender_entrada(indice, cantidad):
     if 0 <= indice < len(eventos):
         if eventos[indice][6] >= cantidad:
             eventos[indice][6] -= cantidad
+
             print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
         else:
             print("No hay suficientes entradas disponibles.")
@@ -96,6 +97,7 @@ def analisis_datos():
         return
 
     total_vendidas = sum(e[5] - e[6] for e in eventos)
+    total_recaudado = sum((e[5] - e[6]) * e[4] for e in eventos)
     promedio = total_vendidas / len(eventos)
     mas_vendido = max(eventos, key=lambda x: x[5] - x[6])
 
@@ -103,11 +105,12 @@ def analisis_datos():
         print("No se han vendido entradas aún.")
     else:
         print("\nAnálisis de datos:")
-        print("Total entradas vendidas: ",total_vendidas)
+        print("Total recaudado: $",total_recaudado, sep="")
+        print("Total entradas vendidas:",total_vendidas)
         print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
-        print("Evento más vendido:", mas_vendido[0] , (mas_vendido[5] - mas_vendido[6], "entradas vendidas"))
+        print("Evento más vendido:", mas_vendido[0] ,"(",(mas_vendido[5] - mas_vendido[6]), "entradas vendidas",")")
 
-def vericacion_fecha(fecha):
+"""def vericacion_fecha(fecha):
     hoy = datetime.now().date()
     fecha_valida = True
     while fecha_valida:
@@ -119,7 +122,7 @@ def vericacion_fecha(fecha):
         else:
             fecha_valida = True
             return fecha
-#HAY QUE CAMBIAR CUANDO APARECE EL ERROR DE FECHA
+#HAY QUE CAMBIAR CUANDO APARECE EL ERROR DE FECHA"""
 
 def validar_fecha():
     today = datetime.today().date()
