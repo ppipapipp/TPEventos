@@ -13,7 +13,7 @@ eventos = [
 def mostrar_eventos():
     print("\n📋   LISTA DE EVENTOS  ━━━━━━━━━━━━━━━━")
     for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA
-       print(f"{i+1:>3}. "
+        print(f"{i+1:>3}. "
       f"Artista: {evento[0]:<15} "
       f"Estadio: {evento[1]:<20} "
       f"Fecha: {evento[2]:<12} "
@@ -33,8 +33,14 @@ def verificacionindice(indice):
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
+    for artista in eventos:
+        if artista[0] == artista and artista[2] == fecha:
+            print("Error, ya existe un evento con ese artista en esa fecha.")
+            return
     #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
+        """agregado en la funcion no_es_vacio"""
     #QUE LA CANTIDAD DE ENTRADAS SEA MAYOR A 0
+        """agregada en la funcion validar_numero"""
     evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
     eventos.append(evento)
     print("Evento creado con éxito.")
@@ -133,6 +139,23 @@ def validar_fecha():
         input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
     return fecha
 
+def no_es_vacio(cadena):
+    while cadena == "":
+        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+
+def validar_numero(valor):
+    if valor.isnumeric():
+        valor = int(valor)
+        while valor <= 0: 
+            valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
+            return validar_numero(valor)
+        valor = int(valor)
+        return valor
+    else:
+        valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
+        return validar_numero(valor)
+
+
 def mostrar_menu():
     print("\n🎟️   MENÚ PRINCIPAL  ━━━━━━━━━━━━━━━━━━━")
     print("1. Mostrar eventos")
@@ -162,12 +185,13 @@ while opcion != 8:
         mostrar_eventos()
 
     elif opcion == 1:
-        artista = input("Ingrese el nombre del artista: ")
-        estadio = input("Ingrese el nombre del estadio: ")
+        artista = no_es_vacio(input("Ingrese el nombre del artista: "))
+        estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
         fecha = validar_fecha()
-        hora = input("Ingrese la hora del evento (HH:MM): ")
-        precio = int(input("Ingrese el precio de la entrada: "))
-        cantidad = int(input("Ingrese la cantidad de entradas disponibles: "))
+        hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
+        precio = validar_numero(input("Ingrese el precio de la entrada: "))
+        print(precio)
+        cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
     elif opcion == 2:
