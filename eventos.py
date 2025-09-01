@@ -139,6 +139,14 @@ def validar_fecha():
         input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
     return fecha
 
+"""
+    try:
+        input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+    except ValueError:
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
+            input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+"""
+
 def no_es_vacio(cadena):
     while cadena == "":
         cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
