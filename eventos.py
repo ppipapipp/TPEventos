@@ -3,7 +3,7 @@ from datetime import datetime
 #DECLARACIÓN DE VARIABLES
 
 eventos = [
-    ["Taylor", "Estadio Nacional", "2023-10-01", "20:00", 50000, 1000, 1000],
+    ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, 1000, 1000],
     ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, 1500, 1500],
     ["Bad_bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, 2000, 2000]
 ]
@@ -32,17 +32,32 @@ def verificacionindice(indice):
 
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
-    #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
-    for artista in eventos:
-        if artista[0] == artista and artista[2] == fecha:
+
+    for evento in eventos:
+        if evento[0] == artista and evento[2] == fecha:
             print("Error, ya existe un evento con ese artista en esa fecha.")
             return
-    #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
-        """agregado en la funcion no_es_vacio"""
-    #QUE LA CANTIDAD DE ENTRADAS SEA MAYOR A 0
-        """agregada en la funcion validar_numero"""
-    evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
-    eventos.append(evento)
+
+    nuevo_evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
+    eventos.append(nuevo_evento)
+    print("Evento creado con éxito.")
+
+def crear_un_evento():
+    
+    artista = no_es_vacio(input("Ingrese el nombre del artista: "))
+    estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
+    fecha = validar_fecha()
+    hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
+    precio = validar_numero(input("Ingrese el precio de la entrada: "))
+    cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
+
+    for evento in eventos:
+        if evento[0] == artista and evento[2] == fecha:
+            print("Error, ya existe un evento con ese artista en esa fecha.")
+            return
+
+    nuevo_evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
+    eventos.append(nuevo_evento)
     print("Evento creado con éxito.")
 
 
@@ -116,20 +131,6 @@ def analisis_datos():
         print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
         print("Evento más vendido:", mas_vendido[0] ,"(",(mas_vendido[5] - mas_vendido[6]), "entradas vendidas",")")
 
-"""def vericacion_fecha(fecha):
-    hoy = datetime.now().date()
-    fecha_valida = True
-    while fecha_valida:
-        print("La fecha ingresada no puede estar en el pasado. Intente de nuevo.")
-        fecha_veri = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
-        fecha = datetime.strptime(fecha_veri, "%Y-%m-%d")
-        if fecha < hoy:
-            print("La fecha ingresada no puede estar en el pasado. Intente de nuevo.")
-        else:
-            fecha_valida = True
-            return fecha
-#HAY QUE CAMBIAR CUANDO APARECE EL ERROR DE FECHA"""
-
 def validar_fecha():
     today = datetime.today().date()
     fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
@@ -139,9 +140,20 @@ def validar_fecha():
         input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
     return fecha
 
+"""
+    try:
+        input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+    except ValueError:
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
+            input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+"""
+
 def no_es_vacio(cadena):
-    while cadena == "":
-        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+    while True:
+        if cadena != "":
+            return str(cadena)
+        else:
+            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
 
 def validar_numero(valor):
     if valor.isnumeric():
@@ -171,13 +183,14 @@ def mostrar_menu():
 
 
 
+
 #PROGRAMA PRINCIPAL
 
 print("\n")
 print("━━   SISTEMA DE GESTIÓN DE EVENTOS   ━━")
 mostrar_menu()
 print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-opcion = int(input("Elija una opción: "))-1
+opcion = validar_numero(input("Elija una opción: "))-1
 
 while opcion != 8:
     
@@ -185,12 +198,12 @@ while opcion != 8:
         mostrar_eventos()
 
     elif opcion == 1:
+        """crear_un_evento()"""
         artista = no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
         fecha = validar_fecha()
         hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
-        print(precio)
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
@@ -207,7 +220,7 @@ while opcion != 8:
         if opcion_mod == 2:
             nuevo_valor = validar_fecha()
         else:
-            nuevo_valor = input("Ingrese el nuevo valor: ")
+            nuevo_valor = no_es_vacio(input("Ingrese el nuevo valor: "))
         modificar_evento(indice, opcion_mod, nuevo_valor)
  
 
@@ -240,9 +253,6 @@ while opcion != 8:
     elif opcion == 7:
         analisis_datos()
 
-    elif opcion == 8: #HACER QUE SE VEA EL CHAU ANTES DE IRTE
-        print("¡Chau!")
-
     else:
         print("Opción inválida. Intente nuevamente.")
     
@@ -250,3 +260,4 @@ while opcion != 8:
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     opcion = int(input("Elija una opción: "))-1
 
+print("¡Chau!")
