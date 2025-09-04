@@ -130,19 +130,25 @@ def analisis_datos():
 
 def validar_fecha():
     today = datetime.today().date()
-    fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
+    fecha = fecha_correcta(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
     
     while len(fecha)<10 or len(fecha)>10:
-            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
+            fecha = fecha_correcta(input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: "))
     input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
     while input_date < today:
             fecha = input("Error, esta fecha ya a pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ")
             input_date = datetime.strptime(fecha, "%Y-%m-%d").date() 
             while len(fecha)<10 or len(fecha)>10:
-                fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
+                fecha = fecha_correcta(input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: "))
     return fecha
 
-
+def fecha_correcta(fecha):
+    while True:
+        if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-':
+            return fecha
+        else:
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
+#si fecha ej 2006-10-20 la posicion del guion es 4 y 7, y el largo sera 10 
 
 def no_es_vacio(cadena):
     while True:
