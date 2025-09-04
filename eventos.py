@@ -62,9 +62,6 @@ def crear_un_evento():
 
 
 def modificar_evento(indice, opcion, nuevo_valor):
-        #PODRÍAMOS HACER QUE NO SE PUEDA CREAR UN EVENTO IGUAL A OTRO
-        #QUE NINGUNO DE LOS VALORES ESTÉ VACÍO
-        #QUE LA FECHA NO SEA ANTERIOR A LA ACTUAL
     if opcion == 5:
         nuevo_valor=int(nuevo_valor)
         diferencia = nuevo_valor - eventos[indice][opcion] #CALCULO LA DIFERENCIA ENTRE LA CANT ANTERIORY ACTUAL DE ENTRADAS
@@ -134,19 +131,18 @@ def analisis_datos():
 def validar_fecha():
     today = datetime.today().date()
     fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
+    
+    while len(fecha)<10 or len(fecha)>10:
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
     input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
     while input_date < today:
-        fecha = input("Error, esta fecha ya a pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ")
-        input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
+            fecha = input("Error, esta fecha ya a pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ")
+            input_date = datetime.strptime(fecha, "%Y-%m-%d").date() 
+            while len(fecha)<10 or len(fecha)>10:
+                fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
     return fecha
 
-"""
-    try:
-        input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
-    except ValueError:
-            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
-            input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
-"""
+
 
 def no_es_vacio(cadena):
     while True:
