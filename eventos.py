@@ -1,5 +1,12 @@
 from datetime import datetime
 
+
+
+
+#COSAS QUE FALTAN
+#ARREGLAR LO DE LA FECHA
+#VER SI PODEMOS AGREGAR BUSCAR EVENTO POR NOMBRE DE ARTISTA
+
 #DECLARACIÓN DE VARIABLES
 
 eventos = [
@@ -42,24 +49,6 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     eventos.append(nuevo_evento)
     print("Evento creado con éxito.")
 
-def crear_un_evento():
-    
-    artista = no_es_vacio(input("Ingrese el nombre del artista: "))
-    estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
-    fecha = validar_fecha()
-    hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
-    precio = validar_numero(input("Ingrese el precio de la entrada: "))
-    cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
-
-    for evento in eventos:
-        if evento[0] == artista and evento[2] == fecha:
-            print("Error, ya existe un evento con ese artista en esa fecha.")
-            return
-
-    nuevo_evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
-    eventos.append(nuevo_evento)
-    print("Evento creado con éxito.")
-
 
 def modificar_evento(indice, opcion, nuevo_valor):
     if opcion == 5:
@@ -72,34 +61,29 @@ def modificar_evento(indice, opcion, nuevo_valor):
 
 
 def eliminar_evento(indice):
-    if 0 <= indice < len(eventos):
-        eliminado = eventos.pop(indice)
-        print(f"Evento eliminado: {eliminado[0]}")
-    else:
-        print("Índice de evento inválido.")
+    verificacionindice(indice)
+    eliminado = eventos.pop(indice)
+    print("Evento eliminado: ", eliminado[0])
+
 
 
 def vender_entrada(indice, cantidad):
-    if 0 <= indice < len(eventos):
-        if eventos[indice][6] >= cantidad:
-            eventos[indice][6] -= cantidad
+    verificacionindice(indice)
+    if eventos[indice][6] >= cantidad:
+        eventos[indice][6] -= cantidad
 
-            print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
-        else:
-            print("No hay suficientes entradas disponibles.")
+        print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
     else:
-        print("Índice de evento inválido.")
+        print("No hay suficientes entradas disponibles.")
 
 
 def cancelar_entrada(indice, cantidad):
-    if 0 <= indice < len(eventos):
-        if eventos[indice][6] + cantidad <= eventos[indice][5]:
-            eventos[indice][6] += cantidad
-            print("Canceladas ", cantidad, " entradas para ", eventos[indice][0])
-        else:
-            print("No se puede cancelar más entradas de las que existen.")
+    verificacionindice(indice)
+    if eventos[indice][6] + cantidad <= eventos[indice][5]:
+        eventos[indice][6] += cantidad
+        print("Canceladas ", cantidad, " entradas para ", eventos[indice][0])
     else:
-        print("Índice de evento inválido.")
+        print("No se puede cancelar más entradas de las que existen.")
 
 
 def ver_entradas_vendidas():
@@ -151,23 +135,15 @@ def fecha_correcta(fecha):
 #si fecha ej 2006-10-20 la posicion del guion es 4 y 7, y el largo sera 10 
 
 def no_es_vacio(cadena):
-    while True:
-        if cadena != "":
-            return str(cadena)
-        else:
-            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+    while cadena == "": 
+        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+    return str(cadena)
+
 
 def validar_numero(valor):
-    if valor.isnumeric():
-        valor = int(valor)
-        while valor <= 0: 
-            valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
-            return validar_numero(valor)
-        valor = int(valor)
-        return valor
-    else:
+    while not valor.isdigit() or int(valor) <= 0:
         valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
-        return validar_numero(valor)
+    return int(valor)
 
 
 def mostrar_menu():
@@ -181,10 +157,6 @@ def mostrar_menu():
     print("7. Ver entradas vendidas")
     print("8. Análisis de datos")
     print("9. Salir")
-
-
-
-
 
 #PROGRAMA PRINCIPAL
 
@@ -200,7 +172,6 @@ while opcion != 8:
         mostrar_eventos()
 
     elif opcion == 1:
-        """crear_un_evento()"""
         artista = no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
         fecha = validar_fecha()
