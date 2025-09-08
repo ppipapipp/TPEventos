@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 #COSAS QUE FALTAN
-#ARREGLAR LO DE LA FECHA
+#FECHA ARREGLADA, QUEDA VER SI SE PUEDE CAMBIAR EL WHILE TRUE :) 
 #VER SI PODEMOS AGREGAR BUSCAR EVENTO POR NOMBRE DE ARTISTA
 
 #DECLARACIÓN DE VARIABLES
@@ -112,27 +112,39 @@ def analisis_datos():
         print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
         print("Evento más vendido:", mas_vendido[0] ,"(",(mas_vendido[5] - mas_vendido[6]), "entradas vendidas",")")
 
-def validar_fecha():
-    today = datetime.today().date()
-    fecha = fecha_correcta(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
-    
-    while len(fecha)<10 or len(fecha)>10:
-            fecha = fecha_correcta(input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: "))
-    input_date = datetime.strptime(fecha, "%Y-%m-%d").date()
-    while input_date < today:
-            fecha = input("Error, esta fecha ya a pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ")
-            input_date = datetime.strptime(fecha, "%Y-%m-%d").date() 
-            while len(fecha)<10 or len(fecha)>10:
-                fecha = fecha_correcta(input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: "))
-    return fecha
+def validar_fecha(): 
+    fecha=(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
+    while True: 
+        if len(fecha) != 10 or fecha[4] != '-' or fecha[7] != '-': #si fecha ej 2006-10-20 la posicion del guion es 4 y 7, y el largo sera 10 
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ") 
+            continue 
+        anio_str = fecha[:4]
+        mes_str = fecha[5:7]
+        dia_str = fecha[8:] #slice para tener cada parte de la fecha, en strings 
+        if not (anio_str.isdigit() and mes_str.isdigit() and dia_str.isdigit()): 
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ") 
+            continue
+        anio = int(anio_str) #los pasamos a enteros para poder calcular las fechas
+        mes = int(mes_str)
+        dia = int(dia_str)
+        if mes < 1 or mes > 12: 
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ") 
+            continue
+        if dia < 1 or dia > 31:
+            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ") 
+            continue
 
-def fecha_correcta(fecha):
-    while True:
-        if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-':
-            return fecha
-        else:
-            fecha = input("Error, formato de fecha inválido. Ingrese la fecha en formato YYYY-MM-DD: ")
-#si fecha ej 2006-10-20 la posicion del guion es 4 y 7, y el largo sera 10 
+        hoy=datetime.now()
+        hoy_str = str(hoy)
+        hoy_anio = int(hoy_str[:4]) #volvemos a separar para poder comparar con la fecha de hoy y ya lo pasamos a enteros para hacerlos 
+        hoy_mes = int(hoy_str[5:7])
+        hoy_dia = int(hoy_str[8:10])
+
+        if anio < hoy_anio or (anio == hoy_anio and mes < hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia < hoy_dia): 
+            fecha = input("Error, esta fecha ya ha pasado. Ingrese una fecha mayor a hoy (YYYY-MM-DD): ") 
+            continue
+        break 
+    return fecha
 
 def no_es_vacio(cadena):
     while cadena == "": 
