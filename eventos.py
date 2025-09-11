@@ -51,6 +51,8 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
 
 def modificar_evento(indice, opcion, nuevo_valor):
     """Modifica un evento existente en la lista de eventos"""
+    no_es_vacio(nuevo_valor)
+    verificacionindice(indice)
     if opcion == 5: #SI LA OPCION ES 5, OSEA QUE QUIERE MODIFICAR LA CANTIDAD DE ENTRADAS
         while not str(nuevo_valor).isdigit() or int(nuevo_valor) < 0 or int(nuevo_valor) < (eventos[indice][5] - eventos[indice][6]):
             """VALIDO QUE SEA UN NUMERO, QUE NO SEA NEGATIVO Y QUE NO SEA MENOR A LAS ENTRADAS YA VENDIDAS"""
