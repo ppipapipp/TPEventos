@@ -19,6 +19,7 @@ eventos = [
 #FUNCIONES
 
 def mostrar_eventos():
+    """Muestra los eventos que se encuentran disponible, si no hay eventos muestra un mensaje"""
     titulo = "\n📋   LISTA DE EVENTOS "
     print(titulo.ljust(40, "━"))
  
@@ -30,6 +31,7 @@ def mostrar_eventos():
         print("No hay eventos registrados.")
 
 def verificacionindice(indice):
+    """Chequea que el índice ingresado sea válido"""
     if 0 <= indice < len(eventos):
         return True
     else:
@@ -38,7 +40,7 @@ def verificacionindice(indice):
 
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
-
+    """Crea un nuevo evento si no existe otro con el mismo artista en la misma fecha y lo agrega a la lista de eventos"""
     for evento in eventos:
         if evento[0] == artista and evento[2] == fecha:
             print("Error, ya existe un evento con ese artista en esa fecha.")
@@ -50,16 +52,22 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
 
 
 def modificar_evento(indice, opcion, nuevo_valor):
-    if opcion == 5:
+    """Modifica un evento existente en la lista de eventos"""
+    if opcion == 5: #SI LA OPCION ES 5, OSEA QUE QUIERE MODIFICAR LA CANTIDAD DE ENTRADAS
+        while not str(nuevo_valor).isdigit() or int(nuevo_valor) < 0 or int(nuevo_valor) < (eventos[indice][5] - eventos[indice][6]):
+            """VALIDO QUE SEA UN NUMERO, QUE NO SEA NEGATIVO Y QUE NO SEA MENOR A LAS ENTRADAS YA VENDIDAS"""
+            nuevo_valor = input("Error, la cantidad de entradas no puede ser menor a las ya vendidas. Ingrese nuevamente: ")
         nuevo_valor=int(nuevo_valor)
         diferencia = nuevo_valor - eventos[indice][opcion] #CALCULO LA DIFERENCIA ENTRE LA CANT ANTERIORY ACTUAL DE ENTRADAS
         eventos[indice][opcion] = nuevo_valor #estoy reemplazando el TOTAL DE ENTRADAS
         eventos[indice][opcion+1] += diferencia
     else:
         eventos[indice][opcion] = nuevo_valor
+        #faltaria agregar validaciones para fecha y hora
 
 
 def eliminar_evento(indice):
+    """Elimina un evento existente en la lista de eventos"""
     verificacionindice(indice)
     eliminado = eventos.pop(indice)
     print("Evento eliminado: ", eliminado[0])
@@ -67,6 +75,7 @@ def eliminar_evento(indice):
 
 
 def vender_entrada(indice, cantidad):
+    """Vende una cantidad de entradas para un evento específico si hay suficientes entradas disponibles"""
     verificacionindice(indice)
     if eventos[indice][6] >= cantidad:
         eventos[indice][6] -= cantidad
@@ -77,6 +86,7 @@ def vender_entrada(indice, cantidad):
 
 
 def cancelar_entrada(indice, cantidad):
+    """Cancela una cantidad de entradas vendidas para un evento específico si no se excede la cantidad total de entradas vendidas"""
     verificacionindice(indice)
     if eventos[indice][6] + cantidad <= eventos[indice][5]:
         eventos[indice][6] += cantidad
@@ -86,6 +96,7 @@ def cancelar_entrada(indice, cantidad):
 
 
 def ver_entradas_vendidas():
+    """Muestra la cantidad de entradas vendidas y disponibles para cada evento"""
     print("\nEntradas vendidas por evento:")
     for evento in eventos:
         vendidas = evento[5] - evento[6]
@@ -93,6 +104,7 @@ def ver_entradas_vendidas():
 
 
 def analisis_datos():
+    """Realiza un análisis de los datos de los eventos, mostrando el total recaudado, total de entradas vendidas, promedio de entradas vendidas por evento y el evento más vendido"""
     if not eventos:
         print("No hay eventos registrados.")
         return
@@ -114,6 +126,7 @@ def analisis_datos():
 from datetime import datetime
 
 def validar_fecha(fecha):
+    """Valida que la fecha ingresada esté en el formato YYYY-MM-DD y no sea una fecha pasada"""
     no_es_vacio(fecha)
     valido = False
     while not valido:
@@ -136,17 +149,21 @@ def validar_fecha(fecha):
 
 
 def no_es_vacio(cadena):
+    """Valida que la cadena ingresada no esté vacía"""
     while cadena == "": 
         cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
     return str(cadena)
 
 
 def validar_numero(valor):
+    """Valida que el valor ingresado sea un número positivo"""
+    no_es_vacio(valor)
     while not valor.isdigit() or int(valor) <= 0:
         valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
     return int(valor)
 
 def validar_hora(hora):
+    """Valida que la hora ingresada esté en el formato HH:MM y sea una hora válida"""
     no_es_vacio(hora)
     valido = False
     while not valido:
@@ -159,6 +176,8 @@ def validar_hora(hora):
         hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
 
 def busqueda_artista(artista):
+    """Busca eventos por el nombre del artista y muestra los resultados"""
+    no_es_vacio(artista)
     artista_encontrado = [evento for evento in eventos if evento[0].lower() == artista.lower()]
     if artista_encontrado:
         print("Eventos encontrados para", artista, ":")
@@ -169,6 +188,7 @@ def busqueda_artista(artista):
         print("No se encontraron eventos para", artista)
 
 def mostrar_menu():
+    """Muestra el menú principal con las opciones disponibles"""
     titulo = "\n 🎟️   MENÚ PRINCIPAL  "
     print(titulo.ljust(40, "━"))
     print("1. Mostrar eventos")
