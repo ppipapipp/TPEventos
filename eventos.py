@@ -7,6 +7,7 @@ from datetime import datetime
 #FECHA ARREGLADA, QUEDA VER SI SE PUEDE CAMBIAR EL WHILE TRUE :) 
 #VER SI PODEMOS AGREGAR BUSCAR EVENTO POR NOMBRE DE ARTISTA
 #NO VALIDAMOS LA HORA
+#FALTA DOCUMENTACION
 
 #DECLARACIÓN DE VARIABLES
 
@@ -21,14 +22,11 @@ eventos = [
 def mostrar_eventos():
     titulo = "\n📋   LISTA DE EVENTOS "
     print(titulo.ljust(40, "━"))
+ 
+    print(f"{'N°':<3} {'Artista':<15} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas':<9}")
     for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA
-        print("%2d. " % (i+1) \
-            + "Artista: %-15s " % evento[0] \
-            + "Estadio: %-20s " % evento[1] \
-            + "Fecha: %-12s " % evento[2] \
-            + "Hora: %-5s " % evento[3] \
-            + "Precio: $%-8d " % evento[4] \
-            + "Entradas disponibles: %-5d" % evento[6])
+        print(f"{i+1:<3} {evento[0]:<15} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[6]:<9}")
+    
     if not eventos:
         print("No hay eventos registrados.")
 
