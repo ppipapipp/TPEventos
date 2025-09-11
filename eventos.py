@@ -19,7 +19,8 @@ eventos = [
 #FUNCIONES
 
 def mostrar_eventos():
-    print("\n📋   LISTA DE EVENTOS  ━━━━━━━━━━━━━━━━").center(10, "")
+    titulo = "\n📋   LISTA DE EVENTOS "
+    print(titulo.ljust(40, "━"))
     for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA
         print("%2d. " % (i+1) \
             + "Artista: %-15s " % evento[0] \
@@ -170,8 +171,8 @@ def mostrar_menu():
 
 print("\n")
 
-titulo = "━━   SISTEMA DE GESTIÓN DE EVENTOS   ━━"
-print(titulo.center(100, " "))
+titulo = "  SISTEMA DE GESTIÓN DE EVENTOS  "
+print(titulo.center(100, "━"))
 mostrar_menu()
 print("".ljust(40, "━"))
 opcion = validar_numero(input("Elija una opción: "))-1
