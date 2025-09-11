@@ -19,7 +19,7 @@ eventos = [
 #FUNCIONES
 
 def mostrar_eventos():
-    print("\n📋   LISTA DE EVENTOS  ━━━━━━━━━━━━━━━━")
+    print("\n📋   LISTA DE EVENTOS  ━━━━━━━━━━━━━━━━").center(10, "")
     for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA
         print("%2d. " % (i+1) \
             + "Artista: %-15s " % evento[0] \
@@ -153,7 +153,8 @@ def validar_numero(valor):
 
 
 def mostrar_menu():
-    print("\n🎟️   MENÚ PRINCIPAL  ━━━━━━━━━━━━━━━━━━━")
+    titulo = "\n 🎟️   MENÚ PRINCIPAL  "
+    print(titulo.ljust(40, "━"))
     print("1. Mostrar eventos")
     print("2. Crear un evento")
     print("3. Modificar un evento")
@@ -163,13 +164,16 @@ def mostrar_menu():
     print("7. Ver entradas vendidas")
     print("8. Análisis de datos")
     print("9. Salir")
+    
 
 #PROGRAMA PRINCIPAL
 
 print("\n")
-print("━━   SISTEMA DE GESTIÓN DE EVENTOS   ━━")
+
+titulo = "━━   SISTEMA DE GESTIÓN DE EVENTOS   ━━"
+print(titulo.center(100, " "))
 mostrar_menu()
-print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+print("".ljust(40, "━"))
 opcion = validar_numero(input("Elija una opción: "))-1
 
 while opcion != 8:
