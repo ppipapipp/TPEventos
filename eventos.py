@@ -5,8 +5,7 @@ from datetime import datetime
 
 #COSAS QUE FALTAN
 #FECHA ARREGLADA, QUEDA VER SI SE PUEDE CAMBIAR EL WHILE TRUE :) 
-#VER SI PODEMOS AGREGAR BUSCAR EVENTO POR NOMBRE DE ARTISTA
-#NO VALIDAMOS LA HORA
+
 #FALTA DOCUMENTACION
 
 #DECLARACIÓN DE VARIABLES
@@ -114,9 +113,8 @@ def analisis_datos():
 
 from datetime import datetime
 
-def validar_fecha():
-    fecha = input("Ingrese la fecha del evento (YYYY-MM-DD): ")
-
+def validar_fecha(fecha):
+    no_es_vacio(fecha)
     valido = False
     while not valido:
         if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and fecha[:4].isdigit() and fecha[5:7].isdigit() and fecha[8:].isdigit():
@@ -136,8 +134,6 @@ def validar_fecha():
                     continue
         fecha = input("Error, formato de fecha inválido o ya pasó. Ingrese nuevamente (YYYY-MM-DD): ")
 
-    return fecha
-
 
 def no_es_vacio(cadena):
     while cadena == "": 
@@ -150,30 +146,41 @@ def validar_numero(valor):
         valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
     return int(valor)
 
-def validar_hora():
+def validar_hora(hora):
+    no_es_vacio(hora)
     valido = False
     while not valido:
         if len(hora) == 5 and hora[2] == ':' and hora[:2].isdigit() and hora[3:].isdigit():
             horas = int(hora[:2])
             minutos = int(hora[3:])
-            if horas >= 24 or horas < 0 and minutos >= 60 or minutos < 0:
-                hora= input("Error, Horario inválido. Ingrese nuevamente (HH:MM): ")
+            if 0 <= horas < 24 and 0 <= minutos < 60:
+                valido = True
+                continue
         hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
 
-
+def busqueda_artista(artista):
+    artista_encontrado = [evento for evento in eventos if evento[0].lower() == artista.lower()]
+    if artista_encontrado:
+        print("Eventos encontrados para", artista, ":")
+        print(f"{'N°':<3} {'Artista':<15} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas':<9}")
+        for evento in artista_encontrado:
+            print(f"{evento[0]:<15} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[6]:<9}")
+    else:
+        print("No se encontraron eventos para", artista)
 
 def mostrar_menu():
     titulo = "\n 🎟️   MENÚ PRINCIPAL  "
     print(titulo.ljust(40, "━"))
     print("1. Mostrar eventos")
     print("2. Crear un evento")
-    print("3. Modificar un evento")
-    print("4. Eliminar un evento")
-    print("5. Vender entrada")
-    print("6. Cancelar entrada")
-    print("7. Ver entradas vendidas")
-    print("8. Análisis de datos")
-    print("9. Salir")
+    print("3. Buscar evento por artista")
+    print("4. Modificar un evento")
+    print("5. Eliminar un evento")
+    print("6. Vender entrada")
+    print("7. Cancelar entrada")
+    print("8. Ver entradas vendidas")
+    print("9. Análisis de datos")
+    print("10. Salir")
     
 
 #PROGRAMA PRINCIPAL
@@ -186,7 +193,7 @@ mostrar_menu()
 print("".ljust(40, "━"))
 opcion = validar_numero(input("Elija una opción: "))-1
 
-while opcion != 8:
+while opcion != 9:
     
     if opcion == 0:
         mostrar_eventos()
@@ -194,13 +201,17 @@ while opcion != 8:
     elif opcion == 1:
         artista = no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
-        fecha = validar_fecha()
-        hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
+        fecha = validar_fecha(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
+        hora = validar_hora(input("Ingrese la hora del evento (HH:MM): "))
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
     elif opcion == 2:
+        artista = no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
+        busqueda_artista(artista)
+
+    elif opcion == 3:
         for i, artista in enumerate(eventos):
             print(i+1,". ", artista[0], sep="")
         indice = int(input("Seleccione el evento a modificar: "))-1
@@ -217,14 +228,14 @@ while opcion != 8:
         modificar_evento(indice, opcion_mod, nuevo_valor)
  
 
-    elif opcion == 3:
+    elif opcion == 4:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento a eliminar: "))-1
         while not verificacionindice(indice):
             indice = int(input("Ingrese un índice válido: "))-1
         eliminar_evento(indice)
 
-    elif opcion == 4:
+    elif opcion == 5:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento: "))-1
         while not verificacionindice(indice):
@@ -232,7 +243,7 @@ while opcion != 8:
         cantidad = int(input("Cantidad de entradas a vender: "))
         vender_entrada(indice, cantidad)
 
-    elif opcion == 5:
+    elif opcion == 6:
         mostrar_eventos()
         indice = int(input("Ingrese el índice del evento: "))-1
         while not verificacionindice(indice):
@@ -240,10 +251,10 @@ while opcion != 8:
         cantidad = int(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(indice, cantidad)
 
-    elif opcion == 6:
+    elif opcion == 7:
         ver_entradas_vendidas()
 
-    elif opcion == 7:
+    elif opcion == 8:
         analisis_datos()
 
     else:
