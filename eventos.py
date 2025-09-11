@@ -4,11 +4,9 @@ from datetime import datetime
 
 
 #COSAS QUE FALTAN
-#FECHA ARREGLADA, QUEDA VER SI SE PUEDE CAMBIAR EL WHILE TRUE :) 
-
-#FALTA DOCUMENTACION
-
+#Podriamos agregar que el modificar evento se un while para que pueda modificar varios campos sin tener que volver al menu principal y agregar un 7 para salir
 #DECLARACIÓN DE VARIABLES
+#Verificar que no halla dos conciertos en el mismo dia en el mismo estadio
 
 eventos = [
     ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, 1000, 1000],
@@ -63,7 +61,6 @@ def modificar_evento(indice, opcion, nuevo_valor):
         eventos[indice][opcion+1] += diferencia
     else:
         eventos[indice][opcion] = nuevo_valor
-        #faltaria agregar validaciones para fecha y hora
 
 
 def eliminar_evento(indice):
@@ -75,7 +72,8 @@ def eliminar_evento(indice):
 
 
 def vender_entrada(indice, cantidad):
-    """Vende una cantidad de entradas para un evento específico si hay suficientes entradas disponibles"""
+    """Vende una cantidad de entradas para un evento específico si hay suficientes entradas disponibles, 
+    en caso de acabarse se notifica que el evento está agotado"""
     verificacionindice(indice)
     if eventos[indice][6] >= cantidad:
         eventos[indice][6] -= cantidad
@@ -83,6 +81,9 @@ def vender_entrada(indice, cantidad):
         print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
     else:
         print("No hay suficientes entradas disponibles.")
+
+    if eventos[indice][6] == 0:
+        print("El evento de ", eventos[indice][0], " está agotado.")
 
 
 def cancelar_entrada(indice, cantidad):
@@ -144,7 +145,7 @@ def validar_fecha(fecha):
 
                 if (anio > hoy_anio) or (anio == hoy_anio and mes > hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia >= hoy_dia):
                     valido = True
-                    continue
+                    return fecha
         fecha = input("Error, formato de fecha inválido o ya pasó. Ingrese nuevamente (YYYY-MM-DD): ")
 
 
@@ -172,7 +173,7 @@ def validar_hora(hora):
             minutos = int(hora[3:])
             if 0 <= horas < 24 and 0 <= minutos < 60:
                 valido = True
-                continue
+                return hora
         hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
 
 def busqueda_artista(artista):
@@ -234,15 +235,19 @@ while opcion != 9:
     elif opcion == 3:
         for i, artista in enumerate(eventos):
             print(i+1,". ", artista[0], sep="")
-        indice = int(input("Seleccione el evento a modificar: "))-1
+        indice = validar_numero(input("Seleccione el evento a modificar: "))-1
         while not verificacionindice(indice):
-            indice = int(input("Ingrese un índice válido: "))-1
+            indice = validar_numero(input("Ingrese un índice válido: "))-1
         print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
         opcion_mod = int(input("¿Qué desea modificar?: "))-1
         while opcion_mod < 0 or opcion_mod > 5:
             opcion_mod = int(input("Opción inválida. Ingrese una opción válida: "))-1
         if opcion_mod == 2:
-            nuevo_valor = validar_fecha()
+            nuevo_valor = validar_fecha(input("Ingrese la nueva fecha (YYYY-MM-DD): "))
+        elif opcion_mod == 3:
+            nuevo_valor = validar_hora(input("Ingrese la nueva hora (HH:MM): "))
+        elif opcion_mod == 4 or opcion_mod == 5:
+            nuevo_valor = validar_numero(input("Ingrese el nuevo valor: "))
         else:
             nuevo_valor = no_es_vacio(input("Ingrese el nuevo valor: "))
         modificar_evento(indice, opcion_mod, nuevo_valor)
