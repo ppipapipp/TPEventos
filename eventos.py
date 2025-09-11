@@ -6,13 +6,14 @@ from datetime import datetime
 #COSAS QUE FALTAN
 #FECHA ARREGLADA, QUEDA VER SI SE PUEDE CAMBIAR EL WHILE TRUE :) 
 #VER SI PODEMOS AGREGAR BUSCAR EVENTO POR NOMBRE DE ARTISTA
+#NO VALIDAMOS LA HORA
 
 #DECLARACIÓN DE VARIABLES
 
 eventos = [
     ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, 1000, 1000],
     ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, 1500, 1500],
-    ["Bad_bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, 2000, 2000]
+    ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, 2000, 2000]
 ]
 
 #FUNCIONES
