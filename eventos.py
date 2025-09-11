@@ -150,6 +150,17 @@ def validar_numero(valor):
         valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
     return int(valor)
 
+def validar_hora():
+    valido = False
+    while not valido:
+        if len(hora) == 5 and hora[2] == ':' and hora[:2].isdigit() and hora[3:].isdigit():
+            horas = int(hora[:2])
+            minutos = int(hora[3:])
+            if horas >= 24 or horas < 0 and minutos >= 60 or minutos < 0:
+                hora= input("Error, Horario inválido. Ingrese nuevamente (HH:MM): ")
+        hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
+
+
 
 def mostrar_menu():
     titulo = "\n 🎟️   MENÚ PRINCIPAL  "
