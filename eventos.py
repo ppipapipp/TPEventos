@@ -28,6 +28,12 @@ def mostrar_eventos():
     if not eventos:
         print("No hay eventos registrados.")
 
+def no_es_vacio(cadena):
+    """Valida que la cadena ingresada no esté vacía"""
+    while cadena == "": 
+        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+    return str(cadena)
+
 def verificacionindice(indice):
     """Chequea que el índice ingresado sea válido"""
     if 0 <= indice < len(eventos):
@@ -51,9 +57,19 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
 
 def modificar_evento(indice, opcion, nuevo_valor):
     """Modifica un evento existente en la lista de eventos"""
-    no_es_vacio(nuevo_valor)
-    verificacionindice(indice)
-    if opcion == 5: #SI LA OPCION ES 5, OSEA QUE QUIERE MODIFICAR LA CANTIDAD DE ENTRADAS
+    if not verificacionindice(indice):
+        return
+    if opcion == 0:
+        eventos[indice][0] = no_es_vacio(nuevo_valor)
+    elif opcion == 1: 
+        eventos[indice][1] = no_es_vacio(nuevo_valor)
+    elif opcion == 2: 
+        eventos[indice][2] = validar_fecha(nuevo_valor)
+    elif opcion == 3:  
+        eventos[indice][3] = validar_hora(nuevo_valor)
+    elif opcion == 4:  
+        eventos[indice][4] = validar_numero(str(nuevo_valor))
+    elif opcion == 5: #SI LA OPCION ES 5, OSEA QUE QUIERE MODIFICAR LA CANTIDAD DE ENTRADAS
         while not str(nuevo_valor).isdigit() or int(nuevo_valor) < 0 or int(nuevo_valor) < (eventos[indice][5] - eventos[indice][6]):
             """VALIDO QUE SEA UN NUMERO, QUE NO SEA NEGATIVO Y QUE NO SEA MENOR A LAS ENTRADAS YA VENDIDAS"""
             nuevo_valor = input("Error, la cantidad de entradas no puede ser menor a las ya vendidas. Ingrese nuevamente: ")
@@ -62,8 +78,7 @@ def modificar_evento(indice, opcion, nuevo_valor):
         eventos[indice][opcion] = nuevo_valor #estoy reemplazando el TOTAL DE ENTRADAS
         eventos[indice][opcion+1] += diferencia
     else:
-        eventos[indice][opcion] = nuevo_valor
-
+            print("Opción inválida.")
 
 def eliminar_evento(indice):
     """Elimina un evento existente en la lista de eventos"""
@@ -151,12 +166,6 @@ def validar_fecha(fecha):
         fecha = input("Error, formato de fecha inválido o ya pasó. Ingrese nuevamente (YYYY-MM-DD): ")
 
 
-def no_es_vacio(cadena):
-    """Valida que la cadena ingresada no esté vacía"""
-    while cadena == "": 
-        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
-    return str(cadena)
-
 
 def validar_numero(valor):
     """Valida que el valor ingresado sea un número positivo"""
@@ -240,20 +249,30 @@ while opcion != 9:
         indice = validar_numero(input("Seleccione el evento a modificar: "))-1
         while not verificacionindice(indice):
             indice = validar_numero(input("Ingrese un índice válido: "))-1
-        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
-        opcion_mod = int(input("¿Qué desea modificar?: "))-1
-        while opcion_mod < 0 or opcion_mod > 5:
-            opcion_mod = int(input("Opción inválida. Ingrese una opción válida: "))-1
-        if opcion_mod == 2:
-            nuevo_valor = validar_fecha(input("Ingrese la nueva fecha (YYYY-MM-DD): "))
-        elif opcion_mod == 3:
-            nuevo_valor = validar_hora(input("Ingrese la nueva hora (HH:MM): "))
-        elif opcion_mod == 4 or opcion_mod == 5:
-            nuevo_valor = validar_numero(input("Ingrese el nuevo valor: "))
-        else:
-            nuevo_valor = no_es_vacio(input("Ingrese el nuevo valor: "))
-        modificar_evento(indice, opcion_mod, nuevo_valor)
- 
+        opcion_mod = 0
+        while opcion_mod != 7:
+            print("\n¿Qué desea modificar?")
+            print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Terminar modificación")
+            opcion_mod = validar_numero(input("Ingrese una opción: "))
+            if opcion_mod == 1:          
+                modificar_evento(indice, 0, no_es_vacio(input("Ingrese el nuevo artista: ")))
+            elif opcion_mod == 2:        
+                modificar_evento(indice, 1, no_es_vacio(input("Ingrese el nuevo estadio: ")))
+            elif opcion_mod == 3:        
+                modificar_evento(indice, 2, validar_fecha(input("Ingrese la nueva fecha (YYYY-MM-DD): ")))
+            elif opcion_mod == 4:        
+                modificar_evento(indice, 3, validar_hora(input("Ingrese la nueva hora (HH:MM): ")))
+            elif opcion_mod == 5:   
+                modificar_evento(indice, 4, validar_numero(input("Ingrese el nuevo precio: ")))
+            elif opcion_mod == 6:        
+                modificar_evento(indice, 5, validar_numero(input("Ingrese la nueva cantidad de entradas: ")))
+            elif opcion_mod == 7:     
+                print("\n El evento ha sido actualizado:")
+                print(eventos[indice][0], "-", eventos[indice][1], "-", eventos[indice][2],
+                    "-", eventos[indice][3], "- $", eventos[indice][4], "-", 
+                    eventos[indice][5], "entradas totales,", eventos[indice][6], "disponibles")
+            else:
+                print("Opción inválida.")
 
     elif opcion == 4:
         mostrar_eventos()
