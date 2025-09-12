@@ -75,6 +75,8 @@ def modificar_evento(indice, opcion, nuevo_valor):
             eventos[indice][opcion] = validar_numero(nuevo_valor)
         elif opcion == 5:  # Cantidad de entradas
             nuevo_valor = validar_numero(nuevo_valor)
+            while nuevo_valor < (eventos[indice][5] - eventos[indice][6]):
+                nuevo_valor = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
             diferencia = nuevo_valor - eventos[indice][opcion]
             eventos[indice][opcion] = nuevo_valor
             eventos[indice][opcion+1] += diferencia
@@ -102,7 +104,6 @@ def vender_entrada(indice, cantidad):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""
 
-    verificacionindice(indice)
     if eventos[indice][6] >= cantidad:
         eventos[indice][6] -= cantidad
 
@@ -117,12 +118,11 @@ def vender_entrada(indice, cantidad):
 def cancelar_entrada(indice, cantidad):
     """Cancela entradas vendidas de un evento, si no se excede la cantidad total de entradas vendidas"""
 
-    verificacionindice(indice)
     if eventos[indice][6] + cantidad <= eventos[indice][5]:
         eventos[indice][6] += cantidad
         print("Canceladas ", cantidad, " entradas para ", eventos[indice][0])
     else:
-        print("No se puede cancelar más entradas de las que existen.")
+        print("No hay entradas vendidas para ese evento o la cantidad vendidas es inferior a la que desea cancelar.")
 
 
 def ver_entradas_vendidas():
@@ -249,7 +249,7 @@ while opcion != 8:
         artista = no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = no_es_vacio(input("Ingrese el nombre del estadio: "))
         fecha = validar_fecha()
-        hora = no_es_vacio(input("Ingrese la hora del evento (HH:MM): "))
+        hora = validar_hora(input("Ingrese la hora del evento (HH:MM): "))
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
@@ -272,25 +272,25 @@ while opcion != 8:
 
     elif opcion == 3:
         mostrar_eventos()
-        indice = int(input("Ingrese el índice del evento a eliminar: "))-1
+        indice = validar_numero(input("Ingrese el índice del evento a eliminar: "))-1
         while not verificacionindice(indice):
-            indice = int(input("Ingrese un índice válido: "))-1
+            indice = validar_numero(input("ingrese un índice válido: "))-1
         eliminar_evento(indice)
 
     elif opcion == 4:
         mostrar_eventos()
-        indice = int(input("Ingrese el índice del evento: "))-1
+        indice = validar_numero(input("Ingrese el índice del evento: "))-1
         while not verificacionindice(indice):
-            indice = int(input("Ingrese un índice válido: "))-1
-        cantidad = int(input("Cantidad de entradas a vender: "))
+            indice = validar_numero(input("Ingrese un índice válido: "))-1
+        cantidad = validar_numero(input("Cantidad de entradas a vender: "))
         vender_entrada(indice, cantidad)
 
     elif opcion == 5:
         mostrar_eventos()
-        indice = int(input("Ingrese el índice del evento: "))-1
+        indice = validar_numero(input("Ingrese el índice del evento: "))-1
         while not verificacionindice(indice):
-            indice = int(input("Ingrese un índice válido: "))-1
-        cantidad = int(input("Cantidad de entradas a cancelar: "))
+            indice = validar_numero(input("Ingrese un índice válido: "))-1
+        cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(indice, cantidad)
 
     elif opcion == 6:
@@ -304,6 +304,6 @@ while opcion != 8:
     
     mostrar_menu()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    opcion = int(input("Elija una opción: "))-1
+    opcion = validar_numero(input("Elija una opción: "))-1
 
 print("¡Chau!")
