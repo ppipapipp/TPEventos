@@ -1,7 +1,6 @@
 from datetime import datetime
 
-#COSAS QUE FALTAN
-#FALTA DOCUMENTACION
+#COSAS QUE FALTAN: un diccionario :(
 
 #DECLARACIÓN DE VARIABLES
 
