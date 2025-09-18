@@ -182,10 +182,10 @@ def analisis_datos():
         print("\nAnálisis de datos:")
         print("Total recaudado: $",total_recaudado, sep="")
         print("Total entradas vendidas:",total_vendidas)
-        print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
+        print(f"Promedio de entradas vendidas: {promedio:.2f}") #CAMBIÉ ESTO
         vendidas_mas_vendido = mas_vendido[5]["total"] - mas_vendido[5]["disponibles"]
         print("Evento más vendido:", mas_vendido[0] ,"(", vendidas_mas_vendido, "entradas vendidas",")")
-
+        #HACERLO CON UN COUNT DEL MAX ASÍ NO HACE FALTA RECORRER LA LISTA DOS VECES
 
 def busqueda_artista(artista):
     """Busca eventos por el nombre del artista y muestra los resultados"""
