@@ -1,14 +1,13 @@
 from datetime import datetime
 
-#COSAS QUE FALTAN: un diccionario :(
-
 #DECLARACIÓN DE VARIABLES
 
 eventos = [
-    ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, 1000, 1000],
-    ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, 1500, 1500],
-    ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, 2000, 2000]
+    ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":1000, "disponibles":1000}],
+    ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, {"total":1500, "disponibles":1500}],
+    ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}]
 ]
+
 
 #FUNCIONES
 
@@ -83,11 +82,10 @@ def mostrar_eventos():
     
     titulo = "\n📋   LISTA DE EVENTOS "
     print(titulo.ljust(40, "━"))
- 
-    print(f"{'N°':<3} {'Artista':<15} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas':<9}")
-    for i, evento in enumerate(eventos): #SEPARA LA LISTA EN INDICES Y SUS VALORES, OSEA QUE ES UNA TUPLA, bueno hay que ver esto
-        print(f"{i+1:<3} {evento[0]:<15} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[6]:<9}")
-    
+
+    print(f"{'N°':<3} {'Artista':<15} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
+    for i, evento in enumerate(eventos): 
+        print(f"{i+1:<3} {evento[0]:<15} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
 
 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
@@ -98,7 +96,7 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
             print("Error, ya existe un evento con ese artista en esa fecha.")
             return
 
-    nuevo_evento = [artista, estadio, fecha, hora, precio, cantidad, cantidad]
+    nuevo_evento = [artista, estadio, fecha, hora, precio, {"total": cantidad, "disponibles": cantidad}]
     eventos.append(nuevo_evento)
     print("Evento creado con éxito.")
 
@@ -106,32 +104,27 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
 def modificar_evento(indice, opcion, nuevo_valor):
     """Modifica un evento existente en la lista de eventos"""
 
-    while opcion != 6:  # salir si elige "7. Dejar de modificar"
-
-        # asignación con validación según campo
-        if opcion == 0:  # Artista
-            eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
-        elif opcion == 1:  # Estadio
-            eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
-        elif opcion == 2:  # Fecha
-            eventos[indice][opcion] = validar_fecha(nuevo_valor)
-        elif opcion == 3:  # Hora
-            eventos[indice][opcion] = validar_hora(nuevo_valor)
-        elif opcion == 4:  # Precio
-            eventos[indice][opcion] = validar_numero(nuevo_valor)
-        elif opcion == 5:  # Cantidad de entradas
-            nuevo_valor = validar_numero(nuevo_valor)
-            while nuevo_valor < (eventos[indice][5] - eventos[indice][6]):
-                nuevo_valor = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
-            diferencia = nuevo_valor - eventos[indice][opcion]
-            eventos[indice][opcion] = nuevo_valor
-            eventos[indice][opcion+1] += diferencia
-
-        # pedir siguiente modificación
-        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Dejar de modificar")
-        opcion = validar_numero(input("¿Qué desea modificar?: ")) - 1
-        nuevo_valor = input("Ingrese el nuevo valor: ")
+    if opcion == 0:   # Artista
+        eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
+    elif opcion == 1:   # Estadio
+        eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
+    elif opcion == 2:   # Fecha
+        eventos[indice][opcion] = validar_fecha(nuevo_valor)
+    elif opcion == 3:   # Hora
+        eventos[indice][opcion] = validar_hora(nuevo_valor)
+    elif opcion == 4:   # Precio
+        eventos[indice][opcion] = validar_numero(nuevo_valor)
+    elif opcion == 5:   # Cantidad de entradas
+        nuevo_valor = validar_numero(nuevo_valor)
+        vendidas = eventos[indice][5]["total"] - eventos[indice][5]["disponibles"]
+        while nuevo_valor < vendidas:
+            nuevo_valor = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
+        diferencia = nuevo_valor - eventos[indice][5]["total"]
+        eventos[indice][5]["total"] = nuevo_valor
+        eventos[indice][5]["disponibles"] += diferencia
+    
     print("Evento modificado con éxito.")
+
 
 def eliminar_evento(indice):
     """Elimina un evento existente en la lista de eventos"""
@@ -143,22 +136,21 @@ def vender_entrada(indice, cantidad):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""
 
-    if eventos[indice][6] >= cantidad:
-        eventos[indice][6] -= cantidad
-
+    if eventos[indice][5]["disponibles"] >= cantidad:
+        eventos[indice][5]["disponibles"] -= cantidad
         print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
     else:
         print("No hay suficientes entradas disponibles.")
     
-    if eventos[indice][6] == 0:
+    if eventos[indice][5]["disponibles"] == 0:
         print("El evento de ", eventos[indice][0], " está agotado.")
 
 
 def cancelar_entrada(indice, cantidad):
     """Cancela entradas vendidas de un evento, si no se excede la cantidad total de entradas vendidas"""
 
-    if eventos[indice][6] + cantidad <= eventos[indice][5]:
-        eventos[indice][6] += cantidad
+    if eventos[indice][5]["disponibles"] + cantidad <= eventos[indice][5]["total"]:
+        eventos[indice][5]["disponibles"] += cantidad
         print("Canceladas ", cantidad, " entradas para ", eventos[indice][0])
     else:
         print("No hay entradas vendidas para ese evento o la cantidad vendidas es inferior a la que desea cancelar.")
@@ -169,8 +161,8 @@ def ver_entradas_vendidas():
 
     print("\nEntradas vendidas por evento:")
     for evento in eventos:
-        vendidas = evento[5] - evento[6]
-        print(evento[0], " -> ", vendidas, " vendidas ", evento[6], "disponibles")
+        vendidas = evento[5]["total"] - evento[5]["disponibles"]
+        print(evento[0], " -> ", vendidas, " vendidas ", evento[5]["disponibles"], "disponibles")
 
 
 def analisis_datos():
@@ -179,10 +171,10 @@ def analisis_datos():
         print("No hay eventos registrados.")
         return
 
-    total_vendidas = sum(e[5] - e[6] for e in eventos)
-    total_recaudado = sum((e[5] - e[6]) * e[4] for e in eventos)
+    total_vendidas = sum(e[5]["total"] - e[5]["disponibles"] for e in eventos)
+    total_recaudado = sum((e[5]["total"] - e[5]["disponibles"]) * e[4] for e in eventos)
     promedio = total_vendidas / len(eventos)
-    mas_vendido = max(eventos, key=lambda x: x[5] - x[6])
+    mas_vendido = max(eventos, key=lambda x: x[5]["total"] - x[5]["disponibles"])
 
     if total_vendidas == 0:
         print("No se han vendido entradas aún.")
@@ -191,7 +183,8 @@ def analisis_datos():
         print("Total recaudado: $",total_recaudado, sep="")
         print("Total entradas vendidas:",total_vendidas)
         print(f"Promedio de entradas vendidas por evento: {promedio:.2f}")
-        print("Evento más vendido:", mas_vendido[0] ,"(",(mas_vendido[5] - mas_vendido[6]), "entradas vendidas",")")
+        vendidas_mas_vendido = mas_vendido[5]["total"] - mas_vendido[5]["disponibles"]
+        print("Evento más vendido:", mas_vendido[0] ,"(", vendidas_mas_vendido, "entradas vendidas",")")
 
 
 def busqueda_artista(artista):
@@ -201,7 +194,7 @@ def busqueda_artista(artista):
     if artista_encontrado:
         print("Eventos encontrados para", artista, ":")
         for evento in artista_encontrado:
-            print(f"Artista: {evento[0]:<10} Estadio: {evento[1]:<20} Fecha: {evento[2]:<12} Hora: {evento[3]:<7} Precio: ${evento[4]:<7} Entradas disponibles: {evento[6]:<9}")
+            print(f"Artista: {evento[0]:<10} Estadio: {evento[1]:<20} Fecha: {evento[2]:<12} Hora: {evento[3]:<7} Precio: ${evento[4]:<7} Entradas disponibles: {evento[5]['disponibles']:<9}")
     else:
         print("No se encontraron eventos para", artista)
 
@@ -251,31 +244,31 @@ while opcion != 9:
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
 
     elif opcion == 3:
-        for i, artista in enumerate(eventos):
-            print(i+1, ". ", artista[0], sep="")
+        mostrar_eventos()
         indice = validar_indice(input("Seleccione el evento a modificar: "))
-        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Dejar de modificar")
+        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
         opcion_mod = validar_numero(input("¿Qué desea modificar?: ")) - 1
-        while opcion_mod < 0 or opcion_mod > 6:
+        while opcion_mod < 0 or opcion_mod > 5: 
             opcion_mod = validar_numero(input("Opción inválida. Ingrese una opción válida: ")) - 1
-        nuevo_valor = input("Ingrese el nuevo valor: ")
-        modificar_evento(indice, opcion_mod, nuevo_valor)
-
+        
+        if opcion_mod != 6: 
+            nuevo_valor = input("Ingrese el nuevo valor: ")
+            modificar_evento(indice, opcion_mod, nuevo_valor)
 
     elif opcion == 4:
         mostrar_eventos()
-        indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))-1
+        indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
         eliminar_evento(indice)
 
     elif opcion == 5:
         mostrar_eventos()
-        indice = validar_indice(input("Ingrese el índice del evento: "))-1
+        indice = validar_indice(input("Ingrese el índice del evento: "))
         cantidad = validar_numero(input("Cantidad de entradas a vender: "))
         vender_entrada(indice, cantidad)
 
     elif opcion == 6:
         mostrar_eventos()
-        indice = validar_indice(input("Ingrese el índice del evento: "))-1
+        indice = validar_indice(input("Ingrese el índice del evento: "))
         cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(indice, cantidad)
 
