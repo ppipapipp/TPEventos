@@ -174,18 +174,22 @@ def analisis_datos():
     total_vendidas = sum(e[5]["total"] - e[5]["disponibles"] for e in eventos)
     total_recaudado = sum((e[5]["total"] - e[5]["disponibles"]) * e[4] for e in eventos)
     promedio = total_vendidas / len(eventos)
-    mas_vendido = max(eventos, key=lambda x: x[5]["total"] - x[5]["disponibles"])
-
+    max_vendidas = max(map(lambda e: e[5]["total"] - e[5]["disponibles"], eventos))
+    mas_vendidos = list(filter(lambda e: (e[5]["total"] - e[5]["disponibles"]) == max_vendidas, eventos))
     if total_vendidas == 0:
         print("No se han vendido entradas aún.")
     else:
         print("\nAnálisis de datos:")
         print("Total recaudado: $",total_recaudado, sep="")
         print("Total entradas vendidas:",total_vendidas)
-        print(f"Promedio de entradas vendidas: {promedio:.2f}") #CAMBIÉ ESTO
-        vendidas_mas_vendido = mas_vendido[5]["total"] - mas_vendido[5]["disponibles"]
-        print("Evento más vendido:", mas_vendido[0] ,"(", vendidas_mas_vendido, "entradas vendidas",")")
-        #HACERLO CON UN COUNT DEL MAX ASÍ NO HACE FALTA RECORRER LA LISTA DOS VECES
+        print(f"Promedio de entradas vendidas: {promedio:.2f}") 
+        if len(mas_vendidos) > 1:
+            print(f"Empate entre {len(mas_vendidos)} eventos más vendidos:")
+        else:
+            print("Evento más vendido:")
+
+        for e in mas_vendidos:
+            print(f"- {e[0]} ({max_vendidas} entradas vendidas)")
 
 def busqueda_artista(artista):
     """Busca eventos por el nombre del artista y muestra los resultados"""
