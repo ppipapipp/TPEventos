@@ -8,7 +8,6 @@ eventos = [
     ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}]
 ]
 
-
 #FUNCIONES
 
 def validar_no_es_vacio(cadena):
@@ -31,7 +30,14 @@ def validar_fecha(fecha):
 
     fecha = validar_no_es_vacio(fecha)
     valido = False
+
+    hoy = datetime.now()
+    hoy_anio = int(str(hoy)[:4])
+    hoy_mes = int(str(hoy)[5:7])
+    hoy_dia = int(str(hoy)[8:10])
+
     while not valido:
+        
         if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and fecha[:4].isdigit() and fecha[5:7].isdigit() and fecha[8:].isdigit():
 
             anio = int(fecha[:4])
@@ -39,15 +45,18 @@ def validar_fecha(fecha):
             dia = int(fecha[8:])
 
             if 1 <= mes <= 12 and 1 <= dia <= 31:
-                hoy = datetime.now()
-                hoy_anio = int(str(hoy)[:4])
-                hoy_mes = int(str(hoy)[5:7])
-                hoy_dia = int(str(hoy)[8:10])
 
                 if (anio > hoy_anio) or (anio == hoy_anio and mes > hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia >= hoy_dia):
                     valido = True
-                    continue
-        fecha = input("Error, formato de fecha inválido o ya pasó. Ingrese nuevamente (YYYY-MM-DD): ")
+                    return fecha
+                else:
+                    print("La fecha ingresada ya pasó.")
+            else:
+                print("El mes o día son inválidos.")
+        else:
+            print("El formato no es válido.")
+
+        fecha = input("Ingrese nuevamente (YYYY-MM-DD): ")
 
     return fecha
 
@@ -72,7 +81,6 @@ def validar_hora(hora):
                 valido = True
                 return hora
         hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
-
 
 def mostrar_eventos():
     """Muestra los eventos que se encuentran disponible, si no hay eventos muestra un mensaje"""
