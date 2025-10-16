@@ -1,6 +1,6 @@
 from datetime import datetime
 
-#A HACER: CAMBIO EL IF NOT, ARREGLAR FECHA, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA, MENU EN PARTES
+#A HACER: CAMBIO EL IF NOT, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA, MENU EN PARTES
 #HACER DISTINTOS SECTORES: CAMPO, PLATEA, ETC
 
 eventos = [
@@ -38,28 +38,51 @@ def validar_fecha(fecha):
     hoy_dia = int(str(hoy)[8:10])
 
     while not valido:
-        
+
         if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and fecha[:4].isdigit() and fecha[5:7].isdigit() and fecha[8:].isdigit():
 
             anio = int(fecha[:4])
             mes = int(fecha[5:7])
             dia = int(fecha[8:])
 
-            if 1 <= mes <= 12 and 1 <= dia <= 31:
+            if mes < 1 or mes > 12:
+                print("El mes ingresado no es válido.")
 
-                if (anio > hoy_anio) or (anio == hoy_anio and mes > hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia >= hoy_dia):
-                    valido = True
-                    return fecha
+            elif mes in [1, 3, 5, 7, 8, 10, 12] and (dia < 1 or dia > 31):
+                print("El día no es válido para ese mes.")
+
+            elif mes in [4, 6, 9, 11] and (dia < 1 or dia > 30):
+                print("El día no es válido para ese mes.")
+
+            elif mes == 2:
+                if (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0):
+                    if dia < 1 or dia > 29:
+                        print("El día no es válido para febrero en año bisiesto.")
+                    else:
+                        valido = True
                 else:
-                    print("La fecha ingresada ya pasó.")
+                    if dia < 1 or dia > 28:
+                        print("El día no es válido para febrero.")
+                    else:
+                        valido = True
             else:
-                print("El mes o día son inválidos.")
+                valido = True
+
+            if valido:
+                if (anio < hoy_anio) or (anio == hoy_anio and mes < hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia < hoy_dia):
+                    print("La fecha ingresada ya pasó.")
+                    valido = False
+                else:
+                    return fecha
+
         else:
             print("El formato no es válido.")
 
         fecha = input("Ingrese nuevamente (YYYY-MM-DD): ")
 
     return fecha
+
+
 
 def validar_numero(valor):
     """Valida que el valor ingresado sea un número positivo"""
