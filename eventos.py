@@ -1,6 +1,7 @@
 from datetime import datetime
 
-#DECLARACIÓN DE VARIABLES
+#A HACER: CAMBIO EL IF NOT, ARREGLAR FECHA, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA, MENU EN PARTES
+#HACER DISTINTOS SECTORES: CAMPO, PLATEA, ETC
 
 eventos = [
     ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":1000, "disponibles":1000}],
@@ -102,7 +103,7 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     for evento in eventos:
         if evento[0] == artista and evento[2] == fecha:
             print("Error, ya existe un evento con ese artista en esa fecha.")
-            return
+
 
     nuevo_evento = [artista, estadio, fecha, hora, precio, {"total": cantidad, "disponibles": cantidad}]
     eventos.append(nuevo_evento)
