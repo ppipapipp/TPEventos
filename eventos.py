@@ -133,6 +133,35 @@ def mostrar_eventos():
         print("No hay eventos registrados.")
         #PODRIAMOS HACER QUE PREGUNTE SI QUEREMOS AGREGAR UN EVENTO? SI/NO
         #PERO ESO REQUERIRIA TENER QUE CREAR LA FUNCION PARA PEDIR LOS DATOS DEL EVENTO APARTE
+
+lista_numero_factura = []
+def validar_duplicados_numero_factura(factura):
+    """Verifica si el número de factura ya existe en la lista"""
+
+    if factura in lista_numero_factura:
+        numero  = random.randint(10000, 99999)
+    else:
+        lista_numero_factura.append(factura)
+
+def generar_numero_facturacion():
+    """Genera un número de factura aleatorio"""
+    factura  = random.randint(10000, 99999)
+    validar_duplicados_numero_factura(factura)
+    return factura
+
+def validar_numero_tramite(numero_de_tramite):
+    """Valida que el número de trámite sea válido es decir que tenga 11 dígitos"""
+    validar_numero(numero_de_tramite)
+    while len(str(numero_de_tramite)) != 11:
+        numero_de_tramite = validar_numero(input("Número de trámite inválido. Ingrese su número de trámite de 11 dígitos: "))
+    return numero_de_tramite
+
+def validar_email(email):
+    """Valida que el email ingresado tenga un formato válido"""
+    validar_no_es_vacio(email)
+    while "@" not in email or "." not in email.split("@")[-1]:
+        email = input("Email inválido. Ingrese un email válido: ")
+    return email
         
     
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
@@ -179,28 +208,50 @@ def eliminar_evento(indice):
     print("Evento eliminado: ", eliminado[0])
 
 
-def vender_entrada(indice, cantidad):
+def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
+    """Imprime la factura de la compra realizada"""
+    print("\n"+" FACTURA ".center(40, "━"))
+    print("Número de factura: ", factura)
+    print("Nombre: ", nombre)
+    print("Apellido: ", apellido)
+    print("Email: ", email)
+    print("Número de trámite: ", numero_de_tramite)
+    print("Cantidad de entradas compradas: ", cantidad_entradas)
+    print("".ljust(40, "━")+"\n")
+
+datos_compradores=[]
+def vender_entrada(indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""
-
-    if eventos[indice][5]["disponibles"] >= cantidad:
-        eventos[indice][5]["disponibles"] -= cantidad
-        print("Vendidas ", cantidad, " entradas para " , eventos[indice][0])
+    if cantidad_entradas > 6:
+        print("No se pueden vender más de 6 entradas por persona.")
     else:
-        print("No hay suficientes entradas disponibles.")
-    
-    if eventos[indice][5]["disponibles"] == 0:
-        print("El evento de ", eventos[indice][0], " está agotado.")
+        if eventos[indice][5]["disponibles"] >= cantidad_entradas:
+            eventos[indice][5]["disponibles"] -= cantidad_entradas
+            print("Vendidas ", cantidad_entradas, " entradas para " , eventos[indice][0])
+        else:
+            print("No hay suficientes entradas disponibles.")
+        
+        if eventos[indice][5]["disponibles"] == 0:
+            print("El evento de ", eventos[indice][0], " está agotado.")
+    factura = generar_numero_facturacion()
+    datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "número de trámite": numero_de_tramite, "número de entradas": cantidad_entradas, "número de factura": factura })
+    imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
 
 
-def cancelar_entrada(indice, cantidad):
+def cancelar_entrada(email, numero_de_tramite, indice, cantidad):
     """Cancela entradas vendidas de un evento, si no se excede la cantidad total de entradas vendidas"""
-
-    if eventos[indice][5]["disponibles"] + cantidad <= eventos[indice][5]["total"]:
-        eventos[indice][5]["disponibles"] += cantidad
-        print("Canceladas ", cantidad, " entradas para ", eventos[indice][0])
+    for comprador in datos_compradores:
+        if comprador["email"] == email and comprador["número de trámite"] == numero_de_tramite:
+            if cantidad > comprador["número de entradas"]:
+                print("No puede cancelar más entradas de las que compró.")
+            else:
+                comprador["número de entradas"] -= cantidad
+                eventos[indice][5]["disponibles"] + cantidad <= eventos[indice][5]["total"]
+                eventos[indice][5]["disponibles"] += cantidad
+                print("Canceladas ", cantidad)
     else:
-        print("No hay entradas vendidas para ese evento o la cantidad vendidas es inferior a la que desea cancelar.")
+        print("No hay entradas vendidas bajo ese mail o numero de factura.")
 
 
 def ver_entradas_vendidas():
@@ -336,13 +387,20 @@ def menu_entradas():
     if opcion_entradas == 0:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento: "))
-        cantidad = validar_numero(input("Cantidad de entradas a vender: "))
-        vender_entrada(indice, cantidad)
+        nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
+        apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
+        email = validar_email(input("Ingrese su email: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de trámite: "))
+        cantidad_entradas = validar_numero(input("Cantidad de entradas a vender: "))
+        vender_entrada(indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
+        
     elif opcion_entradas == 1:
         mostrar_eventos()
+        email = validar_email(input("Ingrese su email: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de trámite: "))
         indice = validar_indice(input("Ingrese el índice del evento: "))
         cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
-        cancelar_entrada(indice, cantidad)
+        cancelar_entrada(email, numero_de_tramite, indice, cantidad)
     elif opcion_entradas == 2:
         ver_entradas_vendidas()
     elif opcion_entradas == 3:
