@@ -1,15 +1,17 @@
 from datetime import datetime
 import random
 
-#A HACER: CAMBIO EL IF NOT, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA
+#A HACER: FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA
 #HACER DISTINTOS SECTORES: CAMPO, PLATEA, ETC
 #TRY-EXCEPT, ARCHIVO EXTERNO PARA GUARDAR DATOS
 
 eventos = [
     ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":1000, "disponibles":1000}],
     ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, {"total":1500, "disponibles":1500}],
-    ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}]
+    ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}],
+    ["Taylor the Creator", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}]
 ]
+
 
 #FUNCIONES
 
@@ -33,7 +35,6 @@ def validar_indice(indice):
         except ValueError:
             print("Error, valor inválido.")
     return int(indice) -1
-
 
 
 def validar_fecha(fecha):
@@ -119,17 +120,21 @@ def validar_hora(hora):
 def mostrar_eventos():
     """Muestra los eventos que se encuentran disponible, si no hay eventos muestra un mensaje"""
 
-    if not eventos:
-        print("No hay eventos registrados.")
+    try:
+        hay_eventos = eventos[0]
+        titulo = "\n📋   LISTA DE EVENTOS "
+        print(titulo.ljust(40, "━"))
+
+        print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
+        for i, evento in enumerate(eventos): 
+            print(f"{i+1:<3} {evento[0]:<20} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
     
-    titulo = "\n📋   LISTA DE EVENTOS "
-    print(titulo.ljust(40, "━"))
-
-    print(f"{'N°':<3} {'Artista':<15} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
-    for i, evento in enumerate(eventos): 
-        print(f"{i+1:<3} {evento[0]:<15} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
-
-
+    except IndexError:
+        print("No hay eventos registrados.")
+        #PODRIAMOS HACER QUE PREGUNTE SI QUEREMOS AGREGAR UN EVENTO? SI/NO
+        #PERO ESO REQUERIRIA TENER QUE CREAR LA FUNCION PARA PEDIR LOS DATOS DEL EVENTO APARTE
+        
+    
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     """Crea un nuevo evento si no existe otro con el mismo artista en la misma fecha y lo agrega a la lista de eventos"""
 
@@ -236,13 +241,24 @@ def analisis_datos():
 def busqueda_artista(artista):
     """Busca eventos por el nombre del artista y muestra los resultados"""
 
-    artista_encontrado = [evento for evento in eventos if evento[0].lower() == artista.lower()]
+    artista_encontrado = [evento for evento in eventos if artista.lower() in evento[0].lower()]
     if artista_encontrado:
-        print("Eventos encontrados para", artista, ":")
-        for evento in artista_encontrado:
-            print(f"Artista: {evento[0]:<10} Estadio: {evento[1]:<20} Fecha: {evento[2]:<12} Hora: {evento[3]:<7} Precio: ${evento[4]:<7} Entradas disponibles: {evento[5]['disponibles']:<9}")
+        titulo = "\nEventos encontrados: "
+        print(titulo.ljust(40, "━"))
+        print(f"{'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
+        for evento in artista_encontrado: 
+            print(f"{evento[0]:<20} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
     else:
         print("No se encontraron eventos para", artista)
+
+def mostrar_menu():
+    """Muestra el menú principal con las opciones disponibles"""
+
+    titulo = "\n 🎟️   MENÚ PRINCIPAL  "
+    print(titulo.ljust(40, "━"))
+    print("1. Administración de eventos")
+    print("2. Administración de entradas")
+    print("3. Salir")
 
 def mostrar_menu():
     """Muestra el menú principal con las opciones disponibles"""
@@ -271,11 +287,9 @@ def menu_eventos():
 
     if opcion_eventos == 0:
         mostrar_eventos()
-        menu_eventos()
     elif opcion_eventos == 1:
         artista_buscar = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
         busqueda_artista(artista_buscar)
-        menu_eventos()
     elif opcion_eventos == 2:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = validar_no_es_vacio(input("Ingrese el nombre del estadio: "))
@@ -284,7 +298,6 @@ def menu_eventos():
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
-        menu_eventos()
     elif opcion_eventos == 3:
         mostrar_eventos()
         indice = validar_indice(input("Seleccione el evento a modificar: "))
@@ -300,15 +313,14 @@ def menu_eventos():
                 modificar_evento(indice, opcion_mod, nuevo_valor)
             else:
                 continuar = False
-        menu_eventos()
 
     elif opcion_eventos == 4:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
         eliminar_evento(indice)
+
+    if opcion_eventos != 5:
         menu_eventos()
-    elif opcion_eventos == 5: #caso base, sale de la recursividad
-        print("Volviendo al menú principal")
 
 def menu_entradas():
 
