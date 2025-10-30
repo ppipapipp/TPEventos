@@ -26,6 +26,8 @@ def validar_indice(indice):
         indice = input("Ingrese un índice válido: ")
     return int(indice) -1
 
+
+
 def validar_fecha(fecha):
     """Valida que la fecha ingresada esté en el formato YYYY-MM-DD y no sea una fecha pasada"""
 
@@ -239,38 +241,30 @@ def mostrar_menu():
 
     titulo = "\n 🎟️   MENÚ PRINCIPAL  "
     print(titulo.ljust(40, "━"))
+    print("1. Administración de eventos")
+    print("2. Administración de entradas")
+    print("3. Salir")
+
+def menu_eventos():
+    """Muestra el menú secundario con las opciones disponibles"""
+
+    titulo = "\n 🎟️   MENÚ EVENTOS  "
+    print(titulo.ljust(40, "━"))
     print("1. Mostrar eventos")
     print("2. Buscar evento por artista")
     print("3. Crear un evento")
     print("4. Modificar un evento")
     print("5. Eliminar un evento")
-    print("6. Vender entrada")
-    print("7. Cancelar entrada")
-    print("8. Ver entradas vendidas")
-    print("9. Análisis de datos")
-    print("10. Salir")
-    
+    print("6. Volver al menú principal")
+    print("".ljust(40, "━"))
+    opcion_eventos = validar_numero(input("Elija una opción: "))-1
 
-#PROGRAMA PRINCIPAL
-
-print("\n")
-
-titulo = "  SISTEMA DE GESTIÓN DE EVENTOS  "
-print(titulo.center(100, "━"))
-mostrar_menu()
-print("".ljust(40, "━"))
-opcion = validar_numero(input("Elija una opción: "))-1
-
-while opcion != 9:
-    
-    if opcion == 0:
+    if opcion_eventos == 0:
         mostrar_eventos()
-
-    elif opcion == 1:
+    elif opcion_eventos == 1:
         artista_buscar = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
         busqueda_artista(artista_buscar)
-
-    elif opcion == 2:
+    elif opcion_eventos == 2:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = validar_no_es_vacio(input("Ingrese el nombre del estadio: "))
         fecha = validar_fecha(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
@@ -278,8 +272,7 @@ while opcion != 9:
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
-
-    elif opcion == 3:
+    elif opcion_eventos == 3:
         mostrar_eventos()
         indice = validar_indice(input("Seleccione el evento a modificar: "))
         print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
@@ -290,33 +283,64 @@ while opcion != 9:
         if opcion_mod != 6: 
             nuevo_valor = input("Ingrese el nuevo valor: ")
             modificar_evento(indice, opcion_mod, nuevo_valor)
-
-    elif opcion == 4:
+    elif opcion_eventos == 4:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
         eliminar_evento(indice)
+    elif opcion_eventos == 5:
+        print("Volviendo al menú principal")
+    else:
+        print("Opción inválida. Intente nuevamente.")
+        opcion_eventos = validar_numero(input("Elija una opción: "))-1
 
-    elif opcion == 5:
+def menu_entradas():
+
+    print("1. Vender entrada")
+    print("2. Cancelar entrada")
+    print("3. Ver entradas vendidas")
+    print("4. Análisis de datos")
+    print("5. Volver al menú principal")
+    opcion_entradas = validar_numero(input("Elija una opción: "))-1
+
+    if opcion_entradas == 0:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento: "))
         cantidad = validar_numero(input("Cantidad de entradas a vender: "))
         vender_entrada(indice, cantidad)
-
-    elif opcion == 6:
+    elif opcion_entradas == 1:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento: "))
         cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(indice, cantidad)
-
-    elif opcion == 7:
+    elif opcion_entradas == 2:
         ver_entradas_vendidas()
-
-    elif opcion == 8:
+    elif opcion_entradas == 3:
         analisis_datos()
-
+    elif opcion_entradas == 4:
+        print("Volviendo al menú principal")
     else:
         print("Opción inválida. Intente nuevamente.")
+        opcion_entradas = validar_numero(input("Elija una opción: "))-1
+#PROGRAMA PRINCIPAL
+
+print("\n")
+
+titulo = "  SISTEMA DE GESTIÓN DE EVENTOS  "
+print(titulo.center(100, "━"))
+mostrar_menu()
+print("".ljust(40, "━"))
+opcion = validar_numero(input("Elija una opción: "))-1
+
+
+while opcion != 2:
     
+    if opcion == 0:
+        menu_eventos()
+
+    elif opcion == 1:
+        menu_entradas()
+    else:
+        print("Opción inválida. Intente nuevamente.")
     mostrar_menu()
     print("".ljust(40, "━"))
     opcion = validar_numero(input("Elija una opción: "))-1
