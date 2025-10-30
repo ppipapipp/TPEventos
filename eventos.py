@@ -1,7 +1,9 @@
 from datetime import datetime
+import random
 
-#A HACER: CAMBIO EL IF NOT, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA, MENU EN PARTES
+#A HACER: CAMBIO EL IF NOT, MEJORAR BUSQUEDA POR ARTISTA, FACTURACION: MAXIMO DE ENTRADAS POR PERSONA Y NUMERO RANDOM DE FACTURA
 #HACER DISTINTOS SECTORES: CAMPO, PLATEA, ETC
+#TRY-EXCEPT, ARCHIVO EXTERNO PARA GUARDAR DATOS
 
 eventos = [
     ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":1000, "disponibles":1000}],
@@ -14,8 +16,11 @@ eventos = [
 def validar_no_es_vacio(cadena):
     """Valida que la cadena ingresada no esté vacía"""
 
-    while cadena == "": 
-        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+    while not cadena.isalnum(): 
+        try:
+            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+        except ValueError:
+            print("Error, valor inválido.")
     return cadena
 
 def validar_indice(indice):
@@ -23,7 +28,10 @@ def validar_indice(indice):
 
     indice = validar_no_es_vacio(indice)
     while not indice.isdigit() or int(indice) <= 0 or int(indice) > len(eventos):
-        indice = input("Ingrese un índice válido: ")
+        try:
+            indice = input("Ingrese un índice válido: ")
+        except ValueError:
+            print("Error, valor inválido.")
     return int(indice) -1
 
 
@@ -258,12 +266,16 @@ def menu_eventos():
     print("6. Volver al menú principal")
     print("".ljust(40, "━"))
     opcion_eventos = validar_numero(input("Elija una opción: "))-1
+    while opcion_eventos < 0 or opcion_eventos > 5:
+        opcion_eventos = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
 
     if opcion_eventos == 0:
         mostrar_eventos()
+        menu_eventos()
     elif opcion_eventos == 1:
         artista_buscar = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
         busqueda_artista(artista_buscar)
+        menu_eventos()
     elif opcion_eventos == 2:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista: "))
         estadio = validar_no_es_vacio(input("Ingrese el nombre del estadio: "))
@@ -272,26 +284,31 @@ def menu_eventos():
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
         crear_evento(artista, estadio, fecha, hora, precio, cantidad)
+        menu_eventos()
     elif opcion_eventos == 3:
         mostrar_eventos()
         indice = validar_indice(input("Seleccione el evento a modificar: "))
-        print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas")
-        opcion_mod = validar_numero(input("¿Qué desea modificar?: ")) - 1
-        while opcion_mod < 0 or opcion_mod > 5: 
-            opcion_mod = validar_numero(input("Opción inválida. Ingrese una opción válida: ")) - 1
-        
-        if opcion_mod != 6: 
-            nuevo_valor = input("Ingrese el nuevo valor: ")
-            modificar_evento(indice, opcion_mod, nuevo_valor)
+        continuar = True
+        while continuar:
+            print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Salir")
+            opcion_mod = validar_numero(input("¿Qué desea modificar?: ")) - 1
+            while opcion_mod < 0 or opcion_mod > 6: 
+                opcion_mod = validar_numero(input("Opción inválida. Ingrese una opción válida: ")) - 1
+            
+            if opcion_mod != 6: 
+                nuevo_valor = input("Ingrese el nuevo valor: ")
+                modificar_evento(indice, opcion_mod, nuevo_valor)
+            else:
+                continuar = False
+        menu_eventos()
+
     elif opcion_eventos == 4:
         mostrar_eventos()
         indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
         eliminar_evento(indice)
-    elif opcion_eventos == 5:
+        menu_eventos()
+    elif opcion_eventos == 5: #caso base, sale de la recursividad
         print("Volviendo al menú principal")
-    else:
-        print("Opción inválida. Intente nuevamente.")
-        opcion_eventos = validar_numero(input("Elija una opción: "))-1
 
 def menu_entradas():
 
@@ -301,6 +318,8 @@ def menu_entradas():
     print("4. Análisis de datos")
     print("5. Volver al menú principal")
     opcion_entradas = validar_numero(input("Elija una opción: "))-1
+    while opcion_entradas < 0 or opcion_entradas > 4:
+        opcion_entradas = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
 
     if opcion_entradas == 0:
         mostrar_eventos()
@@ -316,12 +335,11 @@ def menu_entradas():
         ver_entradas_vendidas()
     elif opcion_entradas == 3:
         analisis_datos()
-    elif opcion_entradas == 4:
+    elif opcion_entradas == 4: #caso base, sale de la recursividad
         print("Volviendo al menú principal")
-    else:
-        print("Opción inválida. Intente nuevamente.")
-        opcion_entradas = validar_numero(input("Elija una opción: "))-1
-#PROGRAMA PRINCIPAL
+    
+    if opcion_entradas != 4:
+        menu_entradas()
 
 print("\n")
 
