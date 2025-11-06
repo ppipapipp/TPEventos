@@ -1,7 +1,7 @@
 from datetime import datetime
 
 #falta: 
-#arreglar un problema con el cancelar entrada
+# arreglar un problema con el cancelar entrada
 # ver bien lo del try except
 # chequear que esté todo bien programado
 # ponerle el texto de info a las funciones
@@ -9,52 +9,90 @@ from datetime import datetime
 # implementar las plateas y eso
 
 
-# === MANEJO DE ARCHIVOS ===
-# Se usará texto plano, un registro por línea, con campos separados por ";"
-
 def cargar_eventos_desde_archivo():
-    eventos=[]
     """Carga los eventos desde 'eventos.txt' si existe"""
+    eventos = []
     try:
-        with open("eventos.txt", "r", encoding="utf8") as arch:
-            for linea in arch:
-                linea = linea.strip()
-                if linea:
-                    artista, estadio, fecha, hora, precio, total, disponibles = linea.split(";")
+        arch = open("eventos.txt", "rt")
+        for linea in arch:
+            linea = linea.strip()
+            if linea:
+                partes = linea.split(";")
+                if len(partes) == 7:
+                    artista, estadio, fecha, hora, precio, total, disponibles = partes
                     eventos.append([artista, estadio, fecha, hora, int(precio), {"total": int(total), "disponibles": int(disponibles)}])
-    except FileNotFoundError:
-        # Si no existe, se crea vacío al guardar por primera vez
-        with open("eventos.txt", "w", encoding="utf8") as arch:
+                else:
+                    print("Línea inválida ignorada:", linea)
+    except FileNotFoundError as mensaje:
+        print("No se puede abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
+    finally:
+        try:
+            arch.close()
+        except NameError:
             pass
     return eventos
 
+
 def guardar_eventos_en_archivo(eventos):
     """Guarda los eventos en 'eventos.txt'"""
-    with open("eventos.txt", "w", encoding="utf8") as arch:
+    try:
+        arch = open("eventos.txt", "wt")
         for evento in eventos:
             arch.write(f"{evento[0]};{evento[1]};{evento[2]};{evento[3]};{evento[4]};{evento[5]['total']};{evento[5]['disponibles']}\n")
+    except OSError as mensaje:
+        print("ERROR al guardar los eventos:", mensaje)
+    else:
+        print("Evento guardado correctamente.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
 
 def guardar_venta_en_archivo(nombre, apellido, email, numero_de_tramite, cantidad_entradas, factura):
     """Guarda una venta en 'ventas.txt'"""
-    with open("ventas.txt", "a", encoding="utf8") as arch:
+    try:
+        arch = open("ventas.txt", "at")
         arch.write(f"{nombre};{apellido};{email};{numero_de_tramite};{cantidad_entradas};{factura}\n")
+    except OSError as mensaje:
+        print("ERROR al registrar la venta:", mensaje)
+    else:
+        print("Venta registrada correctamente.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
 
 def mostrar_ventas_guardadas():
+    ventas = []
     """Lee y muestra todas las ventas desde 'ventas.txt'"""
     try:
-        with open("ventas.txt", "r", encoding="utf8") as arch:
-            print("\n📄 Ventas registradas:")
-            vacio = True
-            for linea in arch:
-                linea = linea.strip()
-                if linea:
-                    vacio = False
-                    nombre, apellido, email, tramite, cantidad, factura = linea.split(";")
-                    print(f"- {nombre} {apellido} | {email} | Trámite: {tramite} | Entradas: {cantidad} | Factura: {factura}")
-            if vacio:
-                print("No hay ventas registradas aún.")
-    except FileNotFoundError:
-        print("No existe el archivo de ventas. Todavía no se registraron ventas.")
+        arch = open("ventas.txt", "rt")
+        print("\n📄 Ventas registradas:")
+        vacio = True
+        for linea in arch:
+            linea = linea.strip()
+            if linea:
+                vacio = False
+                nombre, apellido, email, tramite, cantidad, factura = linea.split(";")
+                print(f"- {nombre} {apellido} | {email} | Trámite: {tramite} | Entradas: {cantidad} | Factura: {factura}")
+        if vacio:
+            print("No hay ventas registradas aún.")
+    except FileNotFoundError as mensaje:
+        print("No se puede abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
+    else:
+        print("Lectura finalizada.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+    return ventas
 
 # Cargar eventos desde archivo al inicio del programa
 cargar_eventos_desde_archivo()
@@ -210,11 +248,11 @@ def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantid
     print("Cantidad de entradas compradas: ", cantidad_entradas)
     print("".ljust(40, "━")+"\n")
 
-datos_compradores=[]
+
 def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""    
-    
+    datos_compradores=[]
     while cantidad_entradas > 6:
         print("No se pueden vender más de 6 entradas por persona.")
         cantidad_entradas = validar_numero(input("Ingrese la cantidad de entradas a vender (máximo 6): "))
@@ -232,9 +270,9 @@ def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, 
     guardar_venta_en_archivo(nombre, apellido, email, numero_de_tramite, cantidad_entradas, factura)
     guardar_eventos_en_archivo(eventos)
 
-def cancelar_entrada(eventos, email, numero_de_tramite, indice, cantidad):
+def cancelar_entrada(eventos, ventas,  email, numero_de_tramite, indice, cantidad):
     """Cancela entradas vendidas de un evento, si no se excede la cantidad total de entradas vendidas"""
-    for comprador in datos_compradores:
+    for comprador in ventas:
         if comprador["email"] == email and comprador["número de trámite"] == numero_de_tramite:
             if cantidad > comprador["número de entradas"]:
                 print("No puede cancelar más entradas de las que compró.")
