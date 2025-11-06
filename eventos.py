@@ -17,13 +17,13 @@ eventos = [
 
 def validar_no_es_vacio(cadena):
     """Valida que la cadena ingresada no esté vacía"""
-
-    while not cadena.isalnum(): 
+    while not cadena.strip(): 
         try:
-            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ")
+            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ").strip()
         except ValueError:
             print("Error, valor inválido.")
     return cadena
+
 
 def validar_indice(indice):
     """Valida que el índice ingresado sea válido"""
