@@ -1,0 +1,4 @@
+Taylor;Estadio Nacional;2025-09-15;20:00;50000;1000;984
+Coldplay;Estadio Nacional;2023-11-01;21:00;60000;1500;1500
+Bad bunny;Estadio Nacional;2023-12-01;22:00;70000;2000;2000
+Taylor the Creator;Estadio Nacional;2023-12-01;22:00;70000;2000;2000
