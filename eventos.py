@@ -6,7 +6,7 @@ import random
 #TRY-EXCEPT, ARCHIVO EXTERNO PARA GUARDAR DATOS
 
 eventos = [
-    ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":1000, "disponibles":1000}],
+    ["Taylor", "Estadio Nacional", "2025-09-15", "20:00", 50000, {"total":5, "disponibles":5}],
     ["Coldplay", "Estadio Nacional", "2023-11-01", "21:00", 60000, {"total":1500, "disponibles":1500}],
     ["Bad bunny", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}],
     ["Taylor the Creator", "Estadio Nacional", "2023-12-01", "22:00", 70000, {"total":2000, "disponibles":2000}]
@@ -223,21 +223,21 @@ datos_compradores=[]
 def vender_entrada(indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""
-    if cantidad_entradas > 6:
+    while cantidad_entradas > 6:
         print("No se pueden vender más de 6 entradas por persona.")
+        cantidad_entradas = validar_numero(input("Ingrese la cantidad de entradas a vender (máximo 6): "))
+    if eventos[indice][5]["disponibles"] >= cantidad_entradas:
+        eventos[indice][5]["disponibles"] -= cantidad_entradas
+        print("Vendidas ", cantidad_entradas, " entradas para " , eventos[indice][0])
+        factura = generar_numero_facturacion()
+        datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "número de trámite": numero_de_tramite, "número de entradas": cantidad_entradas, "número de factura": factura })
+        imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
+    elif eventos[indice][5]["disponibles"] == 0:
+        print("El evento de ", eventos[indice][0], " está agotado.")
     else:
-        if eventos[indice][5]["disponibles"] >= cantidad_entradas:
-            eventos[indice][5]["disponibles"] -= cantidad_entradas
-            print("Vendidas ", cantidad_entradas, " entradas para " , eventos[indice][0])
-        else:
-            print("No hay suficientes entradas disponibles.")
+        print("No hay suficientes entradas disponibles.")
         
-        if eventos[indice][5]["disponibles"] == 0:
-            print("El evento de ", eventos[indice][0], " está agotado.")
-    factura = generar_numero_facturacion()
-    datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "número de trámite": numero_de_tramite, "número de entradas": cantidad_entradas, "número de factura": factura })
-    imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
-
+    
 
 def cancelar_entrada(email, numero_de_tramite, indice, cantidad):
     """Cancela entradas vendidas de un evento, si no se excede la cantidad total de entradas vendidas"""
@@ -250,8 +250,8 @@ def cancelar_entrada(email, numero_de_tramite, indice, cantidad):
                 eventos[indice][5]["disponibles"] + cantidad <= eventos[indice][5]["total"]
                 eventos[indice][5]["disponibles"] += cantidad
                 print("Canceladas ", cantidad)
-    else:
-        print("No hay entradas vendidas bajo ese mail o numero de factura.")
+        else:
+            print("No hay entradas vendidas bajo ese mail o numero de factura.")
 
 
 def ver_entradas_vendidas():
