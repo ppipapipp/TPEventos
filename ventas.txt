@@ -1,4 +1,4 @@
-sfdf;fdsf;ds@df.;12345678910;6;42648
-pipa;dawi;sd@sd.;12345678910;6;58381
-coni;yey;dasd@ds.;12345678910;8;55629
-sdds;sds;dsdds@sd.;12345678910;4;72872
+0;sdds;sds;dsdds@sd.;123456789101234;4;1
+1;coni;dawi;lpm@s.;234567899999999;4;2
+1;coni;dawi;lpm@s.;234567899999999;-2;2
+1;coni;dawi;lpm@s.;234567899999999;-2;2
