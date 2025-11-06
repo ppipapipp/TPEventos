@@ -1,9 +1,13 @@
 from datetime import datetime
-import random
 
+#falta: 
+#arreglar un problema con el cancelar entrada
+# ver bien lo del try except
+# chequear que esté todo bien programado
+# ponerle el texto de info a las funciones
+# ver bien el tema de dejar espacios y que esté todo lindo y bien impreso
+# implementar las plateas y eso
 
-#HACER DISTINTOS SECTORES: CAMPO, PLATEA, ETC
-#TRY-EXCEPT
 
 # === MANEJO DE ARCHIVOS ===
 # Se usará texto plano, un registro por línea, con campos separados por ";"
