@@ -2,7 +2,6 @@ from datetime import datetime
 
 #falta: 
 # chequear que esté todo bien programado
-# ver bien el tema de dejar espacios y que esté todo lindo y bien impreso
 # implementar las plateas y eso
 
 # FUNCIONES DE ARCHIVOS Y GUARDADO DE DATOS
@@ -185,7 +184,6 @@ def validar_fecha(fecha):
             else:
                 valido = True
             if valido:
-                # corrección: comparar año con año (antes había una comparación errónea)
                 if (anio < hoy_anio) or (anio == hoy_anio and mes < hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia < hoy_dia):
                     print("La fecha ingresada ya pasó.")
                     valido = False
@@ -245,15 +243,15 @@ def validar_email(email):
 def mostrar_eventos(eventos):
     """Muestra la lista de eventos disponibles"""
 
-    try:
-        hay_eventos = eventos[0]
-        titulo = "\n📋   LISTA DE EVENTOS "
+    if len(eventos) > 0:
+        titulo = "\n▶   LISTA DE EVENTOS "
         print(titulo.ljust(40, "━"))
         print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
         for i, evento in enumerate(eventos): 
             print(f"{i+1:<3} {evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7} ${evento['precio']:<7} {evento['entradas']['disponibles']:<9}")
-    except IndexError:
+    else:
         print("No hay eventos registrados.")
+    print("\n")
 
 
 def mostrar_ventas(ventas):
@@ -314,6 +312,7 @@ def modificar_evento(eventos, indice, opcion, nuevo_valor):
         diferencia = nuevo_valor - eventos[indice]['entradas']["total"]
         eventos[indice]['entradas']["total"] = nuevo_valor
         eventos[indice]['entradas']["disponibles"] += diferencia
+    print("\n")
     print("Evento modificado con éxito.")
     guardar_eventos_en_archivo(eventos)
 
@@ -465,7 +464,7 @@ def busqueda_artista(eventos, artista):
 
     artista_encontrado = list(filter(lambda evento: artista.lower() in evento['artista'].lower(), eventos))
     if artista_encontrado:
-        titulo = "\nEventos encontrados: "
+        titulo = "\n▶  Eventos encontrados: "
         print(titulo.ljust(40, "━"))
         print(f"{'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
         for evento in artista_encontrado: 
@@ -480,12 +479,13 @@ def busqueda_artista(eventos, artista):
 def mostrar_menu():
     """Muestra el menú principal"""
 
-    titulo = "\n 🎟️   MENÚ PRINCIPAL  "
+    titulo = "\n ★   MENÚ PRINCIPAL  "
     print(titulo.ljust(40, "━"))
     print("1. Administración de eventos")
     print("2. Administración de entradas")
     print("3. Ver ventas registradas")
     print("4. Salir")
+    
 
 
 
@@ -494,7 +494,7 @@ def menu_eventos():
 
     eventos = cargar_eventos_desde_archivo()
 
-    titulo = "\n 🎟️   MENÚ EVENTOS  "
+    titulo = "\n ★   MENÚ EVENTOS  "
     print(titulo.ljust(40, "━"))
     print("1. Mostrar eventos")
     print("2. Buscar evento por artista")
@@ -506,6 +506,7 @@ def menu_eventos():
     print("\n")
 
     opcion_eventos = validar_numero(input("Elija una opción: "))-1
+    print("\n")
     while opcion_eventos < 0 or opcion_eventos > 5:
         opcion_eventos = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
     if opcion_eventos == 0:
@@ -523,23 +524,32 @@ def menu_eventos():
         crear_evento(eventos, artista, estadio, fecha, hora, precio, cantidad)
     elif opcion_eventos == 3:
         mostrar_eventos(eventos)
+        print("\n")
         indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
+        print("\n")
         continuar = True
         while continuar:
             print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Salir")
+            print("\n")
             opcion_mod = validar_numero(input("¿Qué desea modificar?: ")) - 1
             while opcion_mod < 0 or opcion_mod > 6: 
                 opcion_mod = validar_numero(input("Opción inválida. Ingrese una opción válida: ")) - 1
             if opcion_mod != 6: 
+                print("\n")
                 nuevo_valor = input("Ingrese el nuevo valor: ")
+                print("\n")
                 modificar_evento(eventos, indice, opcion_mod, nuevo_valor)
+                print("\n")
             else:
                 continuar = False
     elif opcion_eventos == 4:
         mostrar_eventos(eventos)
+        print("\n")
         indice = validar_indice(len(eventos), input("Ingrese el índice del evento a eliminar: "))
+        print("\n")
         eliminar_evento(eventos, indice)
     if opcion_eventos != 5:
+        print("\n")
         menu_eventos()
 
 
@@ -549,7 +559,7 @@ def menu_entradas():
     ventas = mostrar_ventas_guardadas()
     eventos = cargar_eventos_desde_archivo()
 
-    titulo = "\n 🎟️   MENÚ ENTRADAS  "
+    titulo = "\n ★   MENÚ ENTRADAS  "
     print(titulo.ljust(40, "━"))
     print("1. Vender entrada")
     print("2. Cancelar entrada")
@@ -560,11 +570,13 @@ def menu_entradas():
     print("\n")
 
     opcion_entradas = validar_numero(input("Elija una opción: "))-1
+    print("\n")
     while opcion_entradas < 0 or opcion_entradas > 4:
         opcion_entradas = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
     if opcion_entradas == 0:
         mostrar_eventos(eventos)
         indice = validar_indice(len(eventos), input("Ingrese el índice del evento: "))
+        print("\n")
         nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
         apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
         email = validar_email(input("Ingrese su email: "))
@@ -582,10 +594,9 @@ def menu_entradas():
         ver_entradas_vendidas(eventos)
     elif opcion_entradas == 3:
         analisis_datos(eventos)
-    elif opcion_entradas == 4:
-        print("Volviendo al menú principal")
     if opcion_entradas != 4:
         menu_entradas()
+        
 
 
 # PROGRAMA PRINCIPAL
@@ -598,6 +609,7 @@ mostrar_menu()
 print("".ljust(40, "━"))
 print("\n")
 opcion = validar_numero(input("Elija una opción: "))-1
+print("\n")
 
 while opcion != 3:
     if opcion == 0:
@@ -611,6 +623,7 @@ while opcion != 3:
         print("Opción inválida. Intente nuevamente.")
     mostrar_menu()
     print("".ljust(40, "━"))
+    print("\n")
     opcion = validar_numero(input("Elija una opción: "))-1
 
 print("¡Chau!")
