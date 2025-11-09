@@ -1,7 +1,6 @@
 from datetime import datetime
 
 #falta: 
-# arreglar un problema con el cancelar entrada
 # ver bien lo del try except
 # chequear que esté todo bien programado
 # ver bien el tema de dejar espacios y que esté todo lindo y bien impreso
@@ -198,7 +197,7 @@ def validar_numero_tramite(numero_de_tramite):
 
     validar_numero(numero_de_tramite)
     while len(str(numero_de_tramite)) != 15:
-        numero_de_tramite = validar_numero(input("Número de trámite inválido. Ingrese su número de trámite de 11 dígitos: "))
+        numero_de_tramite = validar_numero(input("Número de trámite inválido. Ingrese su número de trámite de 15 dígitos: "))
     return numero_de_tramite
 
 
@@ -302,19 +301,29 @@ def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantid
     print("".ljust(40, "━")+"\n")
 
 
+def obtener_siguiente_factura(ventas):
+    """Devuelve el número de factura siguiente (max+1) a partir de ventas en memoria"""
+    if len(ventas) == 0:
+        max_factura = 0
+    else:
+        max_factura = max(v[6] for v in ventas)
+    return max_factura + 1
+
+
 def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""    
 
     datos_compradores=[]
+
     while cantidad_entradas > 6:
         print("No se pueden vender más de 6 entradas por persona.")
         cantidad_entradas = validar_numero(input("Ingrese la cantidad de entradas a vender (máximo 6): "))
+
     if eventos[indice][5]["disponibles"] >= cantidad_entradas:
+        factura = obtener_siguiente_factura(ventas)
         eventos[indice][5]["disponibles"] -= cantidad_entradas
         print("Vendidas ", cantidad_entradas, " entradas para " , eventos[indice][0])
-        factura = 0
-        factura  += 1
         datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "número de trámite": numero_de_tramite, "número de entradas": cantidad_entradas, "número de factura": factura })
         imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
     elif eventos[indice][5]["disponibles"] == 0:
@@ -328,41 +337,30 @@ def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, 
 def cancelar_entrada(eventos, ventas, email, numero_de_tramite, factura, cantidad):
     """Cancela entradas vendidas de un evento, usando los datos de la venta existente."""
 
-    # Buscar la venta por email y factura
-    venta_encontrada = None
-    for venta in ventas:
+    venta_encontrada = 0
+    i = 0
+    while i < len(ventas):
+        venta = ventas[i]
         # venta = [indice, nombre, apellido, email, tramite, cantidad, factura]
         if venta[3] == email and venta[6] == factura:
             venta_encontrada = venta
-            break
+        i = i + 1
 
-    if venta_encontrada is None:
+    if venta_encontrada == 0:
         print("No hay entradas vendidas bajo ese mail o número de factura.")
-        return
+    else:
+        indice_evento = venta_encontrada[0]
+        nombre = venta_encontrada[1]
+        apellido = venta_encontrada[2]
+        entradas_compradas = venta_encontrada[5]
 
-    # Extraer los datos automáticamente
-    indice_evento = venta_encontrada[0]
-    nombre = venta_encontrada[1]
-    apellido = venta_encontrada[2]
-    entradas_compradas = venta_encontrada[5]
-
-    # Validar que no se cancelen más entradas de las que se compraron
-    if cantidad > entradas_compradas:
-        print("No puede cancelar más entradas de las que compró.")
-        return
-
-    # Actualizar entradas disponibles
-    eventos[indice_evento][5]["disponibles"] += cantidad
-
-    # Registrar cancelación (cantidad negativa)
-    guardar_venta_en_archivo(indice_evento, nombre, apellido, email, numero_de_tramite, -cantidad, factura)
-
-    # Guardar cambios en archivo
-    guardar_eventos_en_archivo(eventos)
-
-    print(f"Se cancelaron {cantidad} entradas del evento '{eventos[indice_evento][0]}' correctamente.")
-
-
+        if cantidad > entradas_compradas:
+            print("No puede cancelar más entradas de las que compró.")
+        else:
+            eventos[indice_evento][5]["disponibles"] += cantidad
+            guardar_venta_en_archivo(indice_evento, nombre, apellido, email, numero_de_tramite, -cantidad, factura)
+            guardar_eventos_en_archivo(eventos)
+            print(f"Se cancelaron {cantidad} entradas del evento '{eventos[indice_evento][0]}' correctamente.")
 
 
 def ver_entradas_vendidas(eventos):
