@@ -1,7 +1,6 @@
 from datetime import datetime
 
 #falta: 
-# ver bien lo del try except
 # chequear que esté todo bien programado
 # ver bien el tema de dejar espacios y que esté todo lindo y bien impreso
 # implementar las plateas y eso
@@ -20,7 +19,14 @@ def cargar_eventos_desde_archivo():
                 partes = linea.split(";")
                 if len(partes) == 7:
                     artista, estadio, fecha, hora, precio, total, disponibles = partes
-                    eventos.append([artista, estadio, fecha, hora, int(precio), {"total": int(total), "disponibles": int(disponibles)}])
+                    eventos.append({
+                        "artista": artista,
+                        "estadio": estadio,
+                        "fecha": fecha,
+                        "hora": hora,
+                        "precio": int(precio),
+                        "entradas": {"total": int(total), "disponibles": int(disponibles)}
+                    })
                 else:
                     print("Línea inválida: ", linea)
     except FileNotFoundError as mensaje:
@@ -35,13 +41,13 @@ def cargar_eventos_desde_archivo():
     return eventos
 
 
-def guardar_eventos_en_archivo(eventos):
+def guardar_eventos_en_archivo(eventos): #REEMPLAZA TODOS LOS ARCHIVOS
     """Guarda los eventos en 'eventos.txt'"""
 
     try:
         arch = open("eventos.txt", "wt")
         for evento in eventos:
-            arch.write(f"{evento[0]};{evento[1]};{evento[2]};{evento[3]};{evento[4]};{evento[5]['total']};{evento[5]['disponibles']}\n")
+            arch.write(f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
     except OSError as mensaje:
         print("ERROR al guardar los eventos:", mensaje)
     else:
@@ -53,12 +59,29 @@ def guardar_eventos_en_archivo(eventos):
             pass
 
 
-def guardar_venta_en_archivo(indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas, factura):
+def guardar_nuevo_evento(evento): #AGREGÁ NADA MÁS UN REGISTRO
+    """Guarda los eventos en 'eventos.txt'"""
+
+    try:
+        arch = open("eventos.txt", "at")
+        arch.write(f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
+    except OSError as mensaje:
+        print("ERROR al guardar los eventos:", mensaje)
+    else:
+        print("Evento guardado correctamente.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+
+
+def guardar_venta_en_archivo(venta):
     """Guarda una venta en 'ventas.txt'"""
 
     try:
         arch = open("ventas.txt", "at")
-        arch.write(f"{indice};{nombre};{apellido};{email};{numero_de_tramite};{cantidad_entradas};{factura}\n")
+        arch.write(f"{venta['indice']};{venta['nombre']};{venta['apellido']};{venta['email']};{venta['numero_tramite']};{venta['numero_entradas']};{venta['numero_factura']}\n")
     except OSError as mensaje:
         print("ERROR al registrar la venta:", mensaje)
     else:
@@ -68,6 +91,7 @@ def guardar_venta_en_archivo(indice, nombre, apellido, email, numero_de_tramite,
             arch.close()
         except NameError:
             pass
+
 
 
 def mostrar_ventas_guardadas():
@@ -82,7 +106,15 @@ def mostrar_ventas_guardadas():
                 partes = linea.split(";")
                 if len(partes) == 7:
                     indice, nombre, apellido, email, tramite, cantidad, factura = partes
-                    ventas.append([int(indice), nombre, apellido, email, tramite, int(cantidad), int(factura)])
+                    ventas.append({
+                        "indice": int(indice),
+                        "nombre": nombre,
+                        "apellido": apellido,
+                        "email": email,
+                        "numero_tramite": tramite,
+                        "numero_entradas": int(cantidad),
+                        "numero_factura": int(factura)
+                    })
                 else:
                     print("Línea inválida:", linea)
     except FileNotFoundError as mensaje:
@@ -104,23 +136,17 @@ def mostrar_ventas_guardadas():
 def validar_no_es_vacio(cadena):
     """Valida que la cadena no esté vacía"""
 
-    while not cadena.strip(): 
-        try:
-            cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ").strip()
-        except ValueError:
-            print("Error, valor inválido.")
+    while cadena.strip() == "": 
+        cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ").strip()
     return cadena
 
 
-def validar_indice(eventos, indice):
+def validar_indice(cant_eventos, indice):
     """Valida que el índice ingresado sea válido para la lista de eventos"""
 
     indice = validar_no_es_vacio(indice)
-    while not indice.isdigit() or int(indice) <= 0 or int(indice) > len(eventos):
-        try:
-            indice = input("Ingrese un índice válido: ")
-        except ValueError:
-            print("Error, valor inválido.")
+    while not indice.isdigit() or int(indice) <= 0 or int(indice) > cant_eventos:
+        indice = input("Ingrese un índice válido: ")
     return int(indice) -1
 
 
@@ -133,6 +159,7 @@ def validar_fecha(fecha):
     hoy_anio = int(str(hoy)[:4])
     hoy_mes = int(str(hoy)[5:7])
     hoy_dia = int(str(hoy)[8:10])
+
     while not valido:
         if len(fecha) == 10 and fecha[4] == '-' and fecha[7] == '-' and fecha[:4].isdigit() and fecha[5:7].isdigit() and fecha[8:].isdigit():
             anio = int(fecha[:4])
@@ -158,7 +185,8 @@ def validar_fecha(fecha):
             else:
                 valido = True
             if valido:
-                if (anio < hoy_anio) or (anio == hoy_anio and mes < hoy_mes) or (anio == hoy_mes and dia < hoy_dia):
+                # corrección: comparar año con año (antes había una comparación errónea)
+                if (anio < hoy_anio) or (anio == hoy_anio and mes < hoy_mes) or (anio == hoy_anio and mes == hoy_mes and dia < hoy_dia):
                     print("La fecha ingresada ya pasó.")
                     valido = False
                 else:
@@ -192,8 +220,9 @@ def validar_hora(hora):
                 return hora
         hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
 
+
 def validar_numero_tramite(numero_de_tramite):
-    """Valida que el número de trámite tenga 15 dígitos"""
+    """Valida que el numero_tramite tenga 15 dígitos"""
 
     validar_numero(numero_de_tramite)
     while len(str(numero_de_tramite)) != 15:
@@ -222,7 +251,7 @@ def mostrar_eventos(eventos):
         print(titulo.ljust(40, "━"))
         print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
         for i, evento in enumerate(eventos): 
-            print(f"{i+1:<3} {evento[0]:<20} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
+            print(f"{i+1:<3} {evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7} ${evento['precio']:<7} {evento['entradas']['disponibles']:<9}")
     except IndexError:
         print("No hay eventos registrados.")
 
@@ -236,7 +265,7 @@ def mostrar_ventas(ventas):
         print(titulo.ljust(40, "━"))
         print(f"{'N°':<3} {'Nombre':<15} {'Apellido':<15} {'Email':<25} {'Trámite':<18} {'Entradas':<9} {'Factura':<9}")
         for i, venta in enumerate(ventas):
-            print(f"{i+1:<3} {venta['nombre']:<15} {venta['apellido']:<15} {venta['email']:<25} {venta['número de trámite']:<18} {venta['número de entradas']:<9} {venta['número de factura']:<9}")
+            print(f"{i+1:<3} {venta['nombre']:<15} {venta['apellido']:<15} {venta['email']:<25} {venta['numero_tramite']:<18} {venta['numero_entradas']:<9} {venta['numero_factura']:<9}")
     except IndexError:
         print("No hay ventas registradas.")
 
@@ -246,36 +275,45 @@ def crear_evento(eventos, artista, estadio, fecha, hora, precio, cantidad):
     """Crea un nuevo evento si no existe otro con el mismo artista en la misma fecha"""
 
     for evento in eventos:
-        if evento[0] == artista and evento[2] == fecha:
+        if evento['artista'] == artista and evento['fecha'] == fecha:
             print("Error, ya existe un evento con ese artista en esa fecha.")
             return
-    nuevo_evento = [artista, estadio, fecha, hora, precio, {"total": cantidad, "disponibles": cantidad}]
-    eventos.append(nuevo_evento)
+    nuevo_evento = {
+        "artista": artista,
+        "estadio": estadio,
+        "fecha": fecha,
+        "hora": hora,
+        "precio": precio,
+        "entradas": {"total": cantidad, "disponibles": cantidad}
+    }
+    guardar_nuevo_evento(nuevo_evento)
     print("Evento creado con éxito.")
-    guardar_eventos_en_archivo(eventos)
+    
+
 
 
 def modificar_evento(eventos, indice, opcion, nuevo_valor):
     """Modifica un atributo específico de un evento"""
 
+    # opcion: 0 Artista, 1 Estadio, 2 Fecha, 3 Hora, 4 Precio, 5 Cantidad de entradas
     if opcion == 0:   # Artista
-        eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
+        eventos[indice]['artista'] = validar_no_es_vacio(nuevo_valor)
     elif opcion == 1:   # Estadio
-        eventos[indice][opcion] = validar_no_es_vacio(nuevo_valor)
+        eventos[indice]['estadio'] = validar_no_es_vacio(nuevo_valor)
     elif opcion == 2:   # Fecha
-        eventos[indice][opcion] = validar_fecha(nuevo_valor)
+        eventos[indice]['fecha'] = validar_fecha(nuevo_valor)
     elif opcion == 3:   # Hora
-        eventos[indice][opcion] = validar_hora(nuevo_valor)
+        eventos[indice]['hora'] = validar_hora(nuevo_valor)
     elif opcion == 4:   # Precio
-        eventos[indice][opcion] = validar_numero(nuevo_valor)
+        eventos[indice]['precio'] = validar_numero(nuevo_valor)
     elif opcion == 5:   # Cantidad de entradas
         nuevo_valor = validar_numero(nuevo_valor)
-        vendidas = eventos[indice][5]["total"] - eventos[indice][5]["disponibles"]
+        vendidas = eventos[indice]['entradas']["total"] - eventos[indice]['entradas']["disponibles"]
         while nuevo_valor < vendidas:
             nuevo_valor = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
-        diferencia = nuevo_valor - eventos[indice][5]["total"]
-        eventos[indice][5]["total"] = nuevo_valor
-        eventos[indice][5]["disponibles"] += diferencia
+        diferencia = nuevo_valor - eventos[indice]['entradas']["total"]
+        eventos[indice]['entradas']["total"] = nuevo_valor
+        eventos[indice]['entradas']["disponibles"] += diferencia
     print("Evento modificado con éxito.")
     guardar_eventos_en_archivo(eventos)
 
@@ -284,7 +322,7 @@ def eliminar_evento(eventos, indice):
     """Elimina un evento de la lista de eventos"""
 
     eliminado = eventos.pop(indice)
-    print("Evento eliminado: ", eliminado[0])
+    print("Evento eliminado: ", eliminado['artista'])
     guardar_eventos_en_archivo(eventos)
 
 
@@ -302,11 +340,11 @@ def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantid
 
 
 def obtener_siguiente_factura(ventas):
-    """Devuelve el número de factura siguiente (max+1) a partir de ventas en memoria"""
+    """Devuelve el numero_factura siguiente (max+1) a partir de ventas en memoria"""
     if len(ventas) == 0:
         max_factura = 0
     else:
-        max_factura = max(v[6] for v in ventas)
+        max_factura = max(v["numero_factura"] for v in ventas)
     return max_factura + 1
 
 
@@ -314,53 +352,77 @@ def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, 
     """Vende entradas de un evento, si hay suficientes disponibles, 
     en caso de acabarse se notifica que el evento está agotado"""    
 
-    datos_compradores=[]
-
+    datos_compradores = []
+    
     while cantidad_entradas > 6:
         print("No se pueden vender más de 6 entradas por persona.")
         cantidad_entradas = validar_numero(input("Ingrese la cantidad de entradas a vender (máximo 6): "))
 
-    if eventos[indice][5]["disponibles"] >= cantidad_entradas:
-        factura = obtener_siguiente_factura(ventas)
-        eventos[indice][5]["disponibles"] -= cantidad_entradas
-        print("Vendidas ", cantidad_entradas, " entradas para " , eventos[indice][0])
-        datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "número de trámite": numero_de_tramite, "número de entradas": cantidad_entradas, "número de factura": factura })
+    evento = eventos[indice]
+    if evento['entradas']["disponibles"] >= cantidad_entradas:
+        ventas_actuales = mostrar_ventas_guardadas()
+        factura = obtener_siguiente_factura(ventas_actuales)
+        venta = {
+            "indice": indice,
+            "nombre": nombre,
+            "apellido": apellido,
+            "email": email,
+            "numero_tramite": numero_de_tramite,
+            "numero_entradas": cantidad_entradas,
+            "numero_factura": factura
+        }
+        evento['entradas']["disponibles"] -= cantidad_entradas
+        print("Vendidas ", cantidad_entradas, " entradas para " , evento['artista'])
         imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
-    elif eventos[indice][5]["disponibles"] == 0:
-        print("El evento de ", eventos[indice][0], " está agotado.")
+        datos_compradores.append({"nombre": nombre, "apellido": apellido, "email": email, "numero_tramite": numero_de_tramite, "numero_entradas": cantidad_entradas, "numero_factura": factura})
+    elif evento['entradas']["disponibles"] == 0:
+        print("El evento de ", evento['artista'], " está agotado.")
+        return
     else:
         print("No hay suficientes entradas disponibles.")
-    guardar_venta_en_archivo(indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas, factura)
+        return
+
+    guardar_venta_en_archivo(venta)
     guardar_eventos_en_archivo(eventos)
 
 
 def cancelar_entrada(eventos, ventas, email, numero_de_tramite, factura, cantidad):
     """Cancela entradas vendidas de un evento, usando los datos de la venta existente."""
 
-    venta_encontrada = 0
+    venta_encontrada = None
     i = 0
     while i < len(ventas):
         venta = ventas[i]
-        # venta = [indice, nombre, apellido, email, tramite, cantidad, factura]
-        if venta[3] == email and venta[6] == factura:
+      
+        if venta['email'] == email and venta['numero_factura'] == factura:
             venta_encontrada = venta
+
         i = i + 1
 
-    if venta_encontrada == 0:
+    if venta_encontrada is None:
         print("No hay entradas vendidas bajo ese mail o número de factura.")
     else:
-        indice_evento = venta_encontrada[0]
-        nombre = venta_encontrada[1]
-        apellido = venta_encontrada[2]
-        entradas_compradas = venta_encontrada[5]
+        indice_evento = venta_encontrada['indice']
+        nombre = venta_encontrada['nombre']
+        apellido = venta_encontrada['apellido']
+        entradas_compradas = venta_encontrada['numero_entradas']
+        nueva_venta = {
+            "indice": indice_evento,
+            "nombre": nombre,
+            "apellido": apellido,
+            "email": email,
+            "numero_tramite": numero_de_tramite,
+            "numero_entradas": -cantidad,
+            "numero_factura": factura
+        }
 
         if cantidad > entradas_compradas:
             print("No puede cancelar más entradas de las que compró.")
         else:
-            eventos[indice_evento][5]["disponibles"] += cantidad
-            guardar_venta_en_archivo(indice_evento, nombre, apellido, email, numero_de_tramite, -cantidad, factura)
+            eventos[indice_evento]['entradas']["disponibles"] += cantidad
+            guardar_venta_en_archivo(nueva_venta)
             guardar_eventos_en_archivo(eventos)
-            print(f"Se cancelaron {cantidad} entradas del evento '{eventos[indice_evento][0]}' correctamente.")
+            print(f"Se cancelaron {cantidad} entradas del evento '{eventos[indice_evento]['artista']}' correctamente.")
 
 
 def ver_entradas_vendidas(eventos):
@@ -368,21 +430,21 @@ def ver_entradas_vendidas(eventos):
 
     print("\nEntradas vendidas por evento:")
     for evento in eventos:
-        vendidas = evento[5]["total"] - evento[5]["disponibles"]
-        print(evento[0], " -> ", vendidas, " vendidas ", evento[5]["disponibles"], "disponibles")
+        vendidas = evento['entradas']["total"] - evento['entradas']["disponibles"]
+        print(evento['artista'], " -> ", vendidas, " vendidas ", evento['entradas']['disponibles'], "disponibles")
 
 
 def analisis_datos(eventos):
     """Realiza un análisis de datos sobre las ventas de entradas"""
 
-    if not eventos:
+    if len(eventos) == 0:
         print("No hay eventos registrados.")
         return
-    total_vendidas = sum(e[5]["total"] - e[5]["disponibles"] for e in eventos)
-    total_recaudado = sum((e[5]["total"] - e[5]["disponibles"]) * e[4] for e in eventos)
-    promedio = total_vendidas / len(eventos)
-    max_vendidas = max(map(lambda e: e[5]["total"] - e[5]["disponibles"], eventos))
-    mas_vendidos = list(filter(lambda e: (e[5]["total"] - e[5]["disponibles"]) == max_vendidas, eventos))
+    total_vendidas = sum(evento['entradas']["total"] - evento['entradas']["disponibles"] for evento in eventos)
+    total_recaudado = sum((evento['entradas']["total"] - evento['entradas']["disponibles"]) * evento['precio'] for evento in eventos)
+    promedio = total_vendidas / len(eventos) if len(eventos) > 0 else 0
+    max_vendidas = max(map(lambda evento: evento['entradas']["total"] - evento['entradas']["disponibles"], eventos))
+    mas_vendidos = list(filter(lambda evento: (evento['entradas']["total"] - evento['entradas']["disponibles"]) == max_vendidas, eventos))
     if total_vendidas == 0:
         print("No se han vendido entradas aún.")
     else:
@@ -395,19 +457,19 @@ def analisis_datos(eventos):
         else:
             print("Evento más vendido:")
         for e in mas_vendidos:
-            print(f"- {e[0]} ({max_vendidas} entradas vendidas)")
+            print(f"- {e['artista']} ({max_vendidas} entradas vendidas)")
 
 
 def busqueda_artista(eventos, artista):
     """Busca eventos por artista y los muestra"""
 
-    artista_encontrado = [evento for evento in eventos if artista.lower() in evento[0].lower()]
+    artista_encontrado = list(filter(lambda evento: artista.lower() in evento['artista'].lower(), eventos))
     if artista_encontrado:
         titulo = "\nEventos encontrados: "
         print(titulo.ljust(40, "━"))
         print(f"{'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
         for evento in artista_encontrado: 
-            print(f"{evento[0]:<20} {evento[1]:<20} {evento[2]:<12} {evento[3]:<7} ${evento[4]:<7} {evento[5]['disponibles']:<9}")
+            print(f"{evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7} ${evento['precio']:<7} {evento['entradas']['disponibles']:<9}")
     else:
         print("No se encontraron eventos para", artista)
 
@@ -427,8 +489,10 @@ def mostrar_menu():
 
 
 
-def menu_eventos(eventos):
+def menu_eventos():
     """Muestra el menú de administración de eventos"""
+
+    eventos = cargar_eventos_desde_archivo()
 
     titulo = "\n 🎟️   MENÚ EVENTOS  "
     print(titulo.ljust(40, "━"))
@@ -459,7 +523,7 @@ def menu_eventos(eventos):
         crear_evento(eventos, artista, estadio, fecha, hora, precio, cantidad)
     elif opcion_eventos == 3:
         mostrar_eventos(eventos)
-        indice = validar_indice(eventos, input("Seleccione el evento a modificar: "))
+        indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
         continuar = True
         while continuar:
             print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Salir")
@@ -473,14 +537,17 @@ def menu_eventos(eventos):
                 continuar = False
     elif opcion_eventos == 4:
         mostrar_eventos(eventos)
-        indice = validar_indice(eventos, input("Ingrese el índice del evento a eliminar: "))
+        indice = validar_indice(len(eventos), input("Ingrese el índice del evento a eliminar: "))
         eliminar_evento(eventos, indice)
     if opcion_eventos != 5:
-        menu_eventos(eventos)
+        menu_eventos()
 
 
-def menu_entradas(eventos, ventas):
+def menu_entradas():
     """Muestra el menú de administración de entradas"""
+
+    ventas = mostrar_ventas_guardadas()
+    eventos = cargar_eventos_desde_archivo()
 
     titulo = "\n 🎟️   MENÚ ENTRADAS  "
     print(titulo.ljust(40, "━"))
@@ -497,16 +564,16 @@ def menu_entradas(eventos, ventas):
         opcion_entradas = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
     if opcion_entradas == 0:
         mostrar_eventos(eventos)
-        indice = validar_indice(eventos, input("Ingrese el índice del evento: "))
+        indice = validar_indice(len(eventos), input("Ingrese el índice del evento: "))
         nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
         apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
         email = validar_email(input("Ingrese su email: "))
-        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de trámite: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de tramite: "))
         cantidad_entradas = validar_numero(input("Cantidad de entradas a vender: "))
         vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
     elif opcion_entradas == 1:
         email = validar_email(input("Ingrese su email: "))
-        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de trámite: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de tramite: "))
         factura = validar_numero(input("Ingrese su número de factura: "))
         cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
         cancelar_entrada(eventos, ventas, email, numero_de_tramite, factura, cantidad)
@@ -518,14 +585,12 @@ def menu_entradas(eventos, ventas):
     elif opcion_entradas == 4:
         print("Volviendo al menú principal")
     if opcion_entradas != 4:
-        menu_entradas(eventos, ventas)
+        menu_entradas()
 
 
 # PROGRAMA PRINCIPAL
 
 
-eventos = cargar_eventos_desde_archivo()
-ventas = mostrar_ventas_guardadas()
 print("\n")
 titulo = "  SISTEMA DE GESTIÓN DE EVENTOS  "
 print(titulo.center(100, "━"))
@@ -536,11 +601,12 @@ opcion = validar_numero(input("Elija una opción: "))-1
 
 while opcion != 3:
     if opcion == 0:
-        menu_eventos(eventos)
+        menu_eventos()
     elif opcion == 1:
-        menu_entradas(eventos, ventas)
+        menu_entradas()
     elif opcion == 2:
-        mostrar_ventas_guardadas()
+        ventas = mostrar_ventas_guardadas()
+        mostrar_ventas(ventas)
     else:
         print("Opción inválida. Intente nuevamente.")
     mostrar_menu()
