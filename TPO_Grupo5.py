@@ -404,7 +404,7 @@ def ver_entradas_vendidas(eventos):
 
     if len(eventos) > 0:
         titulo = "\n  ENTRADAS VENDIDAS POR EVENTO "
-        print(titulo.ljust(40, "━"))
+        print(titulo.ljust(60, "━"))
         print(f"{'Artista':<25} {'Vendidas':<15} {'Disponibles':<15}")
         for evento in eventos:
             vendidas = evento['entradas']["total"] - evento['entradas']["disponibles"]
