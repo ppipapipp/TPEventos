@@ -9,4 +9,3 @@
 4;Valen;Mora;valenmora@mail.com;506978123405697;6;5
 4;Valen;Mora;valenmora@mail.com;506978123405697;-2;5
 1;Sofia;Dominguez;sofi.dominguez@mail.com;607981234056789;3;6
-1;Sofia;Dominguez;sofi.dominguez@mail.com;607981234056789;-1;6
