@@ -20,9 +20,9 @@ def cargar_eventos_desde_archivo():
                     print("Línea inválida: ", linea)
             linea=arch.readline() 
     except FileNotFoundError as mensaje:
-        print("No se pudo abrir el archivo:", mensaje)
+        print("No se puede abrir el archivo:", mensaje)
     except OSError as mensaje:
-            print("No se puede leer el archivo:", mensaje)
+        print("No se puede leer el archivo:", mensaje)
     finally:
         try:
             arch.close()
@@ -39,7 +39,9 @@ def guardar_eventos_en_archivo(eventos): #REEMPLAZA TODOS LOS REGISTROS - modifi
         for evento in eventos:
             arch.write(f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
     except OSError as mensaje:
-            print("No se puede leer el archivo:", mensaje)
+        print("ERROR al guardar los eventos:", mensaje)
+    else:
+        print("Evento guardado correctamente.")
     finally:
         try:
             arch.close()
@@ -49,6 +51,23 @@ def guardar_eventos_en_archivo(eventos): #REEMPLAZA TODOS LOS REGISTROS - modifi
 
 
 """
+
+def guardar_venta_en_archivo(venta):
+    """Agrega una venta (o cancelación como venta negativa) al archivo ventas.txt"""
+    try:
+        arch = open("ventas.txt", "at")
+        arch.write(f"{venta['indice']};{venta['nombre']};{venta['apellido']};{venta['email']};{venta['numero_tramite']};{venta['numero_entradas']};{venta['numero_factura']}\n")
+    except OSError as mensaje:
+        print("ERROR al registrar la venta:", mensaje)
+    else:
+        print("Venta registrada correctamente.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+
+
 
 def guardar_nuevo_evento(evento): #AGREGÁ NADA MÁS UN REGISTRO - solo para crear un evento
     try:
@@ -103,15 +122,43 @@ def mostrar_ventas_guardadas():
         print("No hay ventas registradas.")
     print("\n")
 
-    
+    """
+def mostrar_ventas_guardadas():
+    Carga las ventas desde 'ventas.txt' y las devuelve como lista
+
+    ventas = []
+    try:
+        arch = open("ventas.txt", "rt")
+        for linea in arch:
+            linea = linea.strip()
+            if linea:
+                partes = linea.split(";")
+                if len(partes) == 7:
+                    indice, nombre, apellido, email, tramite, cantidad, factura = partes
+                    ventas.append({"indice": int(indice), "nombre": nombre, "apellido": apellido, "email": email, "numero_tramite": tramite, "numero_entradas": int(cantidad), "numero_factura": int(factura)})
+                else:
+                    print("Línea inválida:", linea)
+    except FileNotFoundError as mensaje:
+        print("No se puede abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+    return ventas
+"""
+
 
 
 # FUNCIONES DE VALIDACIÓN
 
 
 def validar_no_es_vacio(cadena):
-    cadena = cadena or ""
-    while cadena.strip() == "":
+    """Valida que la cadena no esté vacía"""
+
+    while cadena.strip() == "": 
         cadena = input("El valor no puede estar vacío. Ingrese nuevamente: ").strip()
     return cadena
 
@@ -128,6 +175,7 @@ def validar_indice(cant_eventos, indice):
 
 def validar_fecha(fecha):
     """Valida que la fecha ingresada tenga el formato YYYY-MM-DD y no sea una fecha pasada"""
+
     fecha = validar_no_es_vacio(fecha)
     valido = False
     hoy = datetime.now()
@@ -170,29 +218,49 @@ def validar_fecha(fecha):
         fecha = input("Ingrese nuevamente (YYYY-MM-DD): ")
     return fecha
 
+
 def validar_numero(valor):
+    """Valida que el valor ingresado sea un número positivo"""
+
     valor = validar_no_es_vacio(valor)
     while not valor.isdigit() or int(valor) <= 0:
         valor = input("El valor debe ser un número positivo. Ingrese nuevamente: ")
     return int(valor)
 
-def validar_hora(hora):
-    hora = validar_no_es_vacio(hora)
-    while True:
-        try:
-            datetime.strptime(hora, "%H:%M")
-            return hora
-        except Exception:
-            hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
-
 def validar_numero_de_DNI(numero_de_DNI):
     numero_de_DNI = validar_no_es_vacio(numero_de_DNI)
     while not numero_de_DNI.isdigit() or len(str(numero_de_DNI)) != 15:
         numero_de_DNI = input("Número de trámite inválido. Ingrese su número de trámite de 15 dígitos: ")
-    return numero_de_DNI
+    return numero_de_DNI 
+
+def validar_hora(hora):
+    """Valida que la hora ingresada tenga el formato HH:MM"""
+
+    hora = validar_no_es_vacio(hora)
+    valido = False
+    while not valido:
+        if len(hora) == 5 and hora[2] == ':' and hora[:2].isdigit() and hora[3:].isdigit():
+            horas = int(hora[:2])
+            minutos = int(hora[3:])
+            if 0 <= horas < 24 and 0 <= minutos < 60:
+                valido = True
+                return hora
+        hora = input("Error, formato de hora inválido. Ingrese nuevamente (HH:MM): ")
+
+
+def validar_numero_tramite(numero_de_tramite):
+    """Valida que el numero_tramite tenga 15 dígitos"""
+
+    validar_numero(numero_de_tramite)
+    while len(str(numero_de_tramite)) != 15:
+        numero_de_tramite = validar_numero(input("Número de trámite inválido. Ingrese su número de trámite de 15 dígitos: "))
+    return numero_de_tramite
+
 
 def validar_email(email):
-    email = validar_no_es_vacio(email)
+    """Valida que el email ingresado tenga un formato básico válido"""
+
+    validar_no_es_vacio(email)
     while "@" not in email or "." not in email.split("@")[-1]:
         email = input("Email inválido. Ingrese un email válido: ")
     return email
@@ -615,7 +683,7 @@ def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantid
     print("Nombre: ", nombre)
     print("Apellido: ", apellido)
     print("Email: ", email)
-    print("Número de DNI: ", numero_de_DNI)
+    print("Número de trámite: ", numero_de_tramite)
     print("Cantidad de entradas compradas: ", cantidad_entradas)
     print("".ljust(40, "━")+"\n")
 
@@ -893,6 +961,185 @@ def busqueda_artista(artista):
             pass
 
 # MENÚS PRINCIPALES
+
+
+def mostrar_menu():
+    """Muestra el menú principal"""
+
+    titulo = "\n ★   MENÚ PRINCIPAL  "
+    print(titulo.ljust(40, "━"))
+    print("1. Administración de eventos")
+    print("2. Administración de entradas")
+    print("3. Ver ventas registradas")
+    print("4. Salir")
+    
+
+def menu_eventos():
+    """Muestra el menú de administración de eventos"""
+
+    
+
+    titulo = "\n ★   MENÚ EVENTOS  "
+    print(titulo.ljust(40, "━"))
+    print("1. Mostrar eventos")
+    print("2. Buscar evento por artista")
+    print("3. Crear un evento")
+    print("4. Modificar un evento")
+    print("5. Eliminar un evento")
+    print("6. Volver al menú principal")
+    print("".ljust(40, "━"))
+    print("\n")
+
+    opcion_eventos = validar_numero(input("Elija una opción: "))-1
+    print("\n")
+    while opcion_eventos < 0 or opcion_eventos > 5:
+        opcion_eventos = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
+
+    # Mostrar eventos
+    if opcion_eventos == 0:
+        mostrar_eventos()
+
+    # Buscar evento por artista
+    elif opcion_eventos == 1:
+        artista = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
+        busqueda_artista(artista)
+
+    # Crear evento
+    elif opcion_eventos == 2:
+        artista = validar_no_es_vacio(input("Ingrese el nombre del artista: "))
+        estadio = validar_no_es_vacio(input("Ingrese el nombre del estadio: "))
+        fecha = validar_fecha(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
+        hora = validar_hora(input("Ingrese la hora del evento (HH:MM): "))
+        precio = validar_numero(input("Ingrese el precio de la entrada: "))
+        cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
+        crear_evento( artista, estadio, fecha, hora, precio, cantidad)
+
+    # Modificar evento
+    elif opcion_eventos == 3:
+        mostrar_eventos()
+        print("\n")
+        indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
+        print("\n")
+        continuar = True
+        while continuar:
+            print("1. Artista\n2. Estadio\n3. Fecha\n4. Hora\n5. Precio\n6. Cantidad de entradas\n7. Salir")
+            print("\n")
+            opcion_mod = validar_numero(input("¿Qué desea modificar?: ")) - 1
+            while opcion_mod < 0 or opcion_mod > 6: 
+                opcion_mod = validar_numero(input("Opción inválida. Ingrese una opción válida: ")) - 1
+            if opcion_mod != 6: 
+                print("\n")
+                nuevo_valor = input("Ingrese el nuevo valor: ")
+                print("\n")
+                modificar_evento(eventos, indice, opcion_mod, nuevo_valor)
+                print("\n")
+            else:
+                continuar = False
+    
+    # Eliminar evento
+    elif opcion_eventos == 4:
+        mostrar_eventos(eventos)
+        print("\n")
+        indice = validar_indice(len(eventos), input("Ingrese el índice del evento a eliminar: "))
+        print("\n")
+        eliminar_evento(eventos, indice)
+
+    # Volver al menú
+    if opcion_eventos != 5:
+        print("\n")
+        menu_eventos()
+
+
+def menu_entradas():
+    """Muestra el menú de administración de entradas"""
+
+    ventas = mostrar_ventas_guardadas()
+    eventos = cargar_eventos_desde_archivo()
+
+    titulo = "\n ★   MENÚ ENTRADAS  "
+    print(titulo.ljust(40, "━"))
+    print("1. Vender entrada")
+    print("2. Cancelar entrada")
+    print("3. Ver entradas vendidas")
+    print("4. Análisis de datos")
+    print("5. Volver al menú principal")
+    print("".ljust(40, "━"))
+    print("\n")
+
+    opcion_entradas = validar_numero(input("Elija una opción: "))-1
+    print("\n")
+    while opcion_entradas < 0 or opcion_entradas > 4:
+        opcion_entradas = validar_numero(input("Opción inválida. Ingrese una opción válida: "))-1
+
+    # Vender entrada
+    if opcion_entradas == 0:
+        mostrar_eventos(eventos)
+        indice = validar_indice(len(eventos), input("Ingrese el índice del evento: "))
+        print("\n")
+        nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
+        apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
+        email = validar_email(input("Ingrese su email: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de tramite: "))
+        cantidad_entradas = validar_numero(input("Cantidad de entradas a vender: "))
+        vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas)
+
+    # Cancelar entrada
+    elif opcion_entradas == 1:
+        email = validar_email(input("Ingrese su email: "))
+        numero_de_tramite = validar_numero_tramite(input("Ingrese su número de tramite: "))
+        factura = validar_numero(input("Ingrese su número de factura: "))
+        cantidad = validar_numero(input("Cantidad de entradas a cancelar: "))
+        cancelar_entrada(eventos, ventas, email, numero_de_tramite, factura, cantidad)
+        ventas = mostrar_ventas_guardadas()
+    
+    # Ver entradas vendidas
+    elif opcion_entradas == 2:
+        ver_entradas_vendidas(eventos)
+
+    # Análisis de datos
+    elif opcion_entradas == 3:
+        analisis_datos(eventos)
+    
+    # Volver al menú
+    if opcion_entradas != 4:
+        menu_entradas()
+        
+
+
+# PROGRAMA PRINCIPAL
+
+
+print("\n")
+titulo = "  SISTEMA DE GESTIÓN DE EVENTOS  "
+print(titulo.center(100, "━"))
+mostrar_menu()
+print("".ljust(40, "━"))
+print("\n")
+opcion = validar_numero(input("Elija una opción: "))-1
+print("\n")
+
+while opcion != 3:
+
+    # Menú de eventos
+    if opcion == 0:
+        menu_eventos()
+
+    # Menú de entradas
+    elif opcion == 1:
+        menu_entradas()
+
+    # Mostrar todas las ventas
+    elif opcion == 2:
+        ventas = mostrar_ventas_guardadas()
+        mostrar_ventas(ventas)
+    else:
+        print("Opción inválida. Intente nuevamente.")
+    mostrar_menu()
+    print("".ljust(40, "━"))
+    print("\n")
+    opcion = validar_numero(input("Elija una opción: "))-1
+
+print("¡Chau!")
 
 
 def mostrar_menu():
