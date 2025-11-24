@@ -166,11 +166,11 @@ def validar_no_es_vacio(cadena):
 def validar_indice(indice):
     """Valida que el índice ingresado sea válido para la lista de eventos"""
 
-    indice = validar_no_es_vacio(indice)
+    indice = validar_numero(indice)
     maximo=cantidad_de_eventos()
-    while not indice.isdigit() or int(indice) <= 0 or int(indice) > maximo:
+    while indice < 1 or indice > maximo:
         indice = input("Ingrese un índice válido: ")
-    return int(indice) -1
+    return indice 
 
 
 def validar_fecha(fecha):
@@ -299,11 +299,11 @@ def mostrar_ventas(ventas):
   """ 
 
 def evento_seleccionado(linea):
-    """Convierte una línea de texto en un dict evento o devuelve None si es formato inválido/vacio"""
+    """Convierte una línea de texto en un dict evento o devuelve un diccionario vacio si es formato inválido/vacio"""
 
     linea = linea.strip()
     if linea == "": 
-        return None
+        return {}
     try:
         partes = linea.split(";")
         if len(partes) == 7:
@@ -320,7 +320,7 @@ def evento_seleccionado(linea):
                 }
             }
     except ValueError:
-        return None
+        return {}
     
 #.-.
 def evento_a_linea(evento):
@@ -390,6 +390,7 @@ def cantidad_de_eventos():
         while linea != "":
             if len(partes) == 7:
                 cuenta += 1
+            linea = arch.readline() 
     except FileNotFoundError:
         return 0
     except OSError as mensaje:
@@ -433,133 +434,75 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
         except NameError:
             pass
 
-#REVISAR SIOSI RARO 
-def modificar_evento_en_archivo(indice_objetivo, campo, nuevo_valor):
-    """
-    Modifica un atributo del evento en la línea índice_objetivo (0-based entre líneas válidas).
-    campo: 'artista', 'estadio', 'fecha', 'hora', 'precio', 'total_entradas'
-    """
-    encontrado = False
-    numero_linea = 0
+
+def modificar_evento(indice, opcion, nuevo_valor):
+    """modifica un atributo específico de un evento usando un archivo temporal."""
+
     try:
-        entrada = open("eventos.txt","rt")
-        salida = open("temp.txt","wt")
-        k = 0
-        for linea in entrada:
+        arch = open("eventos.txt", "rt")
+        temp = open("eventos.tmp", "wt")
+
+        linea = arch.readline()
+        nro_actual = 1
+
+        while linea != "":
             evento = evento_seleccionado(linea)
-            if evento is None:
-                salida.write(linea)  # copia línea no válida tal cual
-                continue
-            if numero_linea == indice_objetivo:
-                encontrado = True
-                # aplicar modificación
-                if campo == 'artista':
-                    evento['artista'] = nuevo_valor.strip() or evento['artista']
-                elif campo == 'estadio':
-                    evento['estadio'] = nuevo_valor.strip() or evento['estadio']
-                elif campo == 'fecha':
-                    try:
-                        datetime.strptime(nuevo_valor, "%Y-%m-%d")
-                        evento['fecha'] = nuevo_valor
-                    except Exception:
-                        print("Formato de fecha inválido. No se modificó.")
-                elif campo == 'hora':
-                    try:
-                        datetime.strptime(nuevo_valor, "%H:%M")
-                        evento['hora'] = nuevo_valor
-                    except Exception:
-                        print("Formato de hora inválido. No se modificó.")
-                elif campo == 'precio':
-                    try:
-                        evento['precio'] = int(nuevo_valor)
-                    except ValueError:
-                        print("Precio inválido. No se modificó.")
-                elif campo == 'total_entradas':
-                    try:
-                        nuevo_total = int(nuevo_valor)
-                        vendidas = evento['entradas']['total'] - evento['entradas']['disponibles']
-                        if nuevo_total < vendidas:
-                            print("La nueva cantidad no puede ser menor a las entradas ya vendidas. No se modificó.")
-                        else:
-                            diferencia = nuevo_total - evento['entradas']['total']
-                            evento['entradas']['total'] = nuevo_total
-                            evento['entradas']['disponibles'] += diferencia
-                    except ValueError:
-                        print("Cantidad inválida. No se modificó.")
-                # escribir línea modificada
-                salida.write(evento_a_linea(evento) + "\n")
+            if evento != "":
+                if nro_actual == indice:
+                    if opcion == 0:      
+                        evento["artista"] = validar_no_es_vacio(nuevo_valor)
+
+                    elif opcion == 1:  
+                        evento["estadio"] = validar_no_es_vacio(nuevo_valor) 
+
+                    elif opcion == 2: 
+                        evento["fecha"] = validar_fecha(nuevo_valor)  
+
+                    elif opcion == 3:   
+                        evento["hora"] = validar_hora(nuevo_valor)
+
+                    elif opcion == 4: 
+                        evento["precio"] = validar_numero(nuevo_valor)
+
+                    elif opcion == 5: 
+                        nuevo_total = validar_numero(nuevo_valor)
+                        total_actual = evento["entradas"]["total"]
+                        disponibles = evento["entradas"]["disponibles"]
+                        vendidas = total_actual - disponibles
+
+                        while nuevo_total < vendidas:
+                            nuevo_total = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
+
+                        diferencia = nuevo_total - total_actual
+                        evento["entradas"]["total"] = nuevo_total
+                        evento["entradas"]["disponibles"] += diferencia
+
+                    nueva_linea = (f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
+                    temp.write(nueva_linea)
+                else:
+                    temp.write(linea)
+                nro_actual += 1
             else:
-                salida.write(linea)
-            if evento is not None:
-                numero_linea += 1
-    
-    except FileNotFoundError as mensaje:
-        print("No se puede abrir el archivo:", mensaje)
+                temp.write(linea)
+            linea = arch.readline()
+        print("\nEvento modificado con éxito.")
+    except FileNotFoundError:
+        print("No se encontró eventos.txt")
     except OSError as mensaje:
-        print("ERROR: ", mensaje)
-    else:
-        print("Copia finalizada. Líneas copiadas:", k)
+        print("Error al leer/escribir el archivo:", mensaje)
     finally:
-        try:
-            entrada.close( )
-            salida.close( )
-        except NameError:
+        try: 
+            arch.close()
+        except NameError: 
             pass
-
-    if not encontrado:
         try:
-            os.remove("temp.txt")
-        except OSError:
+            temp.close()
+        except NameError: 
             pass
-        print("Índice no encontrado. No se hicieron cambios.")
-        return
     try:
-        os.replace(TEMP_FILE, EVENTOS_FILE)  # atómico en muchos SO
-    except OSError as e:
-        print("Error al reemplazar archivo:", e)
-        return
-    print("Evento modificado con éxito.")
-
-
-def modificar_evento(eventos, indice, opcion, nuevo_valor):
-    """Modifica un atributo específico de un evento"""
-
-    # Artista
-    if opcion == 0:   
-        eventos[indice]['artista'] = validar_no_es_vacio(nuevo_valor)
-
-    # Estadio    
-    elif opcion == 1:   
-        eventos[indice]['estadio'] = validar_no_es_vacio(nuevo_valor)
-
-    # Fecha    
-    elif opcion == 2:   
-        eventos[indice]['fecha'] = validar_fecha(nuevo_valor)
-
-    # Hora    
-    elif opcion == 3:   
-        eventos[indice]['hora'] = validar_hora(nuevo_valor)
-
-    # Precio    
-    elif opcion == 4:   
-        eventos[indice]['precio'] = validar_numero(nuevo_valor)
-
-    # Cantidad de entradas    
-    elif opcion == 5:   
-        nuevo_valor = validar_numero(nuevo_valor)
-        vendidas = eventos[indice]['entradas']["total"] - eventos[indice]['entradas']["disponibles"]
-
-        while nuevo_valor < vendidas:
-            nuevo_valor = validar_numero(input("La nueva cantidad no puede ser menor a las entradas ya vendidas. Ingrese nuevamente: "))
-        
-        diferencia = nuevo_valor - eventos[indice]['entradas']["total"]
-        eventos[indice]['entradas']["total"] = nuevo_valor
-        eventos[indice]['entradas']["disponibles"] += diferencia
-    
-    print("\n")
-    print("Evento modificado con éxito.")
-    guardar_eventos_en_archivo(eventos)
-
+        os.replace("eventos.tmp", "eventos.txt")
+    except:
+        print("No se pudo reemplazar el archivo original.")
 
 def eliminar_evento(eventos, indice):
     """Elimina un evento de la lista de eventos"""
@@ -1031,7 +974,7 @@ def menu_eventos():
                 print("\n")
                 nuevo_valor = input("Ingrese el nuevo valor: ")
                 print("\n")
-                modificar_evento(eventos, indice, opcion_mod, nuevo_valor)
+                modificar_evento(indice, opcion_mod, nuevo_valor)
                 print("\n")
             else:
                 continuar = False
@@ -1141,6 +1084,7 @@ while opcion != 3:
 
 print("¡Chau!")
 
+"""
 
 def mostrar_menu():
     titulo = "\n ★   MENÚ PRINCIPAL  "
@@ -1151,7 +1095,7 @@ def mostrar_menu():
     print("4. Salir")
 
 def menu_eventos():
-    """Muestra el menú de administración de eventos"""
+
 
     
 
@@ -1355,3 +1299,4 @@ def main():
 
     main()
 
+"""
