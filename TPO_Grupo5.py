@@ -163,7 +163,7 @@ def validar_no_es_vacio(cadena):
     return cadena
 
 
-def validar_indice(cant_eventos, indice):
+def validar_indice(indice):
     """Valida que el índice ingresado sea válido para la lista de eventos"""
 
     indice = validar_no_es_vacio(indice)
@@ -1018,7 +1018,7 @@ def menu_eventos():
     elif opcion_eventos == 3:
         mostrar_eventos()
         print("\n")
-        indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
+        indice = validar_indice( input("Seleccione el evento a modificar: "))
         print("\n")
         continuar = True
         while continuar:
@@ -1040,7 +1040,7 @@ def menu_eventos():
     elif opcion_eventos == 4:
         mostrar_eventos(eventos)
         print("\n")
-        indice = validar_indice(len(eventos), input("Ingrese el índice del evento a eliminar: "))
+        indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
         print("\n")
         eliminar_evento(eventos, indice)
 
@@ -1074,7 +1074,7 @@ def menu_entradas():
     # Vender entrada
     if opcion_entradas == 0:
         mostrar_eventos(eventos)
-        indice = validar_indice(len(eventos), input("Ingrese el índice del evento: "))
+        indice = validar_indice(input("Ingrese el índice del evento: "))
         print("\n")
         nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
         apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
@@ -1193,7 +1193,7 @@ def menu_eventos():
     elif opcion_eventos == 3:
         mostrar_eventos()
         print("\n")
-        indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
+        indice = validar_indice(input("Seleccione el evento a modificar: "))
         print("\n")
         continuar = True
         while continuar:
@@ -1212,7 +1212,7 @@ def menu_eventos():
             print("No hay eventos para eliminar.")
         else:
             mostrar_eventos()
-            indice = validar_indice(total, input("Ingrese el índice del evento a eliminar: "))
+            indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
             eliminar_evento_en_archivo(indice)
     if opcion_eventos != 5:
         print("\n")
@@ -1241,7 +1241,7 @@ def menu_entradas():
         if total == 0:
             print("No hay eventos para vender entradas.")
         else:
-            indice = validar_indice(total, input("Ingrese el índice del evento: "))
+            indice = validar_indice(input("Ingrese el índice del evento: "))
             print("\n")
             nombre = validar_no_es_vacio(input("Ingrese su nombre: "))
             apellido = validar_no_es_vacio(input("Ingrese su apellido: "))
