@@ -1,14 +1,15 @@
 from datetime import datetime
-
+import os
 # FUNCIONES DE ARCHIVOS Y GUARDADO DE DATOS
-
+"""
 def cargar_eventos_desde_archivo():
-    """Carga los eventos desde 'eventos.txt'"""
+
 
     eventos = []
     try:
         arch = open("eventos.txt", "rt")
-        for linea in arch:
+        linea=arch.readline() 
+        while linea!="":
             linea = linea.strip()
             if linea:
                 partes = linea.split(";")
@@ -17,6 +18,7 @@ def cargar_eventos_desde_archivo():
                     eventos.append({ "artista": artista,"estadio": estadio, "fecha": fecha, "hora": hora, "precio": int(precio), "entradas": {"total": int(total), "disponibles": int(disponibles)}})
                 else:
                     print("Línea inválida: ", linea)
+            linea=arch.readline() 
     except FileNotFoundError as mensaje:
         print("No se puede abrir el archivo:", mensaje)
     except OSError as mensaje:
@@ -30,7 +32,7 @@ def cargar_eventos_desde_archivo():
 
 
 def guardar_eventos_en_archivo(eventos): #REEMPLAZA TODOS LOS REGISTROS - modificar y eliminar evento
-    """Guarda los eventos en 'eventos.txt'"""
+
 
     try:
         arch = open("eventos.txt", "wt")
@@ -47,26 +49,11 @@ def guardar_eventos_en_archivo(eventos): #REEMPLAZA TODOS LOS REGISTROS - modifi
             pass
 
 
-def guardar_nuevo_evento(evento): #AGREGÁ NADA MÁS UN REGISTRO - solo para crear un evento
-    """Guarda solo un registro en eventos en 'eventos.txt'"""
 
-    try:
-        arch = open("eventos.txt", "at")
-        arch.write(f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
-    except OSError as mensaje:
-        print("ERROR al guardar los eventos:", mensaje)
-    else:
-        print("Evento guardado correctamente.")
-    finally:
-        try:
-            arch.close()
-        except NameError:
-            pass
-
+"""
 
 def guardar_venta_en_archivo(venta):
-    """Guarda una venta en 'ventas.txt'"""
-
+    """Agrega una venta (o cancelación como venta negativa) al archivo ventas.txt"""
     try:
         arch = open("ventas.txt", "at")
         arch.write(f"{venta['indice']};{venta['nombre']};{venta['apellido']};{venta['email']};{venta['numero_tramite']};{venta['numero_entradas']};{venta['numero_factura']}\n")
@@ -81,8 +68,63 @@ def guardar_venta_en_archivo(venta):
             pass
 
 
+
+def guardar_nuevo_evento(evento): #AGREGÁ NADA MÁS UN REGISTRO - solo para crear un evento
+    try:
+        arch = open("eventos.txt", "at")
+        arch.write(f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}\n")
+    except OSError as mensaje:
+        print("ERROR al guardar los eventos:", mensaje)
+    else:
+        print("Evento guardado correctamente.")
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+
 def mostrar_ventas_guardadas():
-    """Carga las ventas desde 'ventas.txt' y las devuelve como lista"""
+    """Muestra ventas leyendo ventas.txt línea por línea (no devuelve lista)."""
+    tiene = False
+    print("\n▶   LISTA DE VENTAS ".ljust(40, "━"))
+    header = f"{'N°':<3} {'Nombre':<15} {'Apellido':<15} {'Email':<25} {'Trámite':<18} {'Entradas':<9} {'Factura':<9}"
+    print(header)
+    num = 0
+    try:
+        entrada = open("eventos.txt","rt")
+        for linea in entrada:
+            linea = linea.strip()
+            if linea == " ":
+                continue
+            partes = linea.split(";")
+            if len(partes) != 7:
+                continue
+            try:
+                num += 1
+                nombre = partes[1]
+                apellido = partes[2]
+                email = partes[3]
+                numero_de_DNI = partes[4]
+                cantidad = partes[5]
+                factura = partes[6]
+                tiene = True
+                print(f"{num:<3} {nombre:<15} {apellido:<15} {email:<25} {numero_de_DNI:<18} {cantidad:<9} {factura:<9}")
+            except Exception:
+                continue
+    except FileNotFoundError:
+        print("No hay ventas registradas.")
+        return
+    except OSError as e:
+        print("Error al leer ventas:", e)
+        return
+
+    if not tiene:
+        print("No hay ventas registradas.")
+    print("\n")
+
+    """
+def mostrar_ventas_guardadas():
+    Carga las ventas desde 'ventas.txt' y las devuelve como lista
 
     ventas = []
     try:
@@ -106,6 +148,8 @@ def mostrar_ventas_guardadas():
         except NameError:
             pass
     return ventas
+"""
+
 
 
 # FUNCIONES DE VALIDACIÓN
@@ -123,7 +167,8 @@ def validar_indice(cant_eventos, indice):
     """Valida que el índice ingresado sea válido para la lista de eventos"""
 
     indice = validar_no_es_vacio(indice)
-    while not indice.isdigit() or int(indice) <= 0 or int(indice) > cant_eventos:
+    maximo=cantidad_de_eventos()
+    while not indice.isdigit() or int(indice) <= 0 or int(indice) > maximo:
         indice = input("Ingrese un índice válido: ")
     return int(indice) -1
 
@@ -218,9 +263,9 @@ def validar_email(email):
 
 # FUNCIONES PRINCIPALES
 
-
+"""
 def mostrar_eventos(eventos):
-    """Muestra la lista de eventos disponibles"""
+
 
     if len(eventos) > 0:
         titulo = "\n▶   LISTA DE EVENTOS "
@@ -234,7 +279,7 @@ def mostrar_eventos(eventos):
 
 
 def mostrar_ventas(ventas):
-    """Muestra la lista de ventas registradas"""
+
 
     if len(ventas) > 0:
         titulo = "\n▶   LISTA DE VENTAS "
@@ -245,23 +290,230 @@ def mostrar_ventas(ventas):
     else:
         print("No hay ventas registradas.")
     print("\n")
-        
 
-def crear_evento(eventos, artista, estadio, fecha, hora, precio, cantidad):
+  """ 
+
+def evento_seleccionado(linea):
+    """Convierte una línea de texto en un dict evento o devuelve None si es formato inválido/vacio"""
+
+    linea = linea.strip()
+    if linea == "": 
+        return None
+    try:
+        partes = linea.split(";")
+        if len(partes) == 7:
+            artista, estadio, fecha, hora, precio, total, disponibles = partes
+        return {
+                "artista": artista,
+                "estadio": estadio,
+                "fecha": fecha, 
+                "hora": hora,
+                "precio": int(precio),
+                "entradas": {
+                    "total": int(total),
+                    "disponibles": int(disponibles)
+                }
+            }
+    except ValueError:
+        return None
+    
+#.-.
+def evento_a_linea(evento):
+    """Convierte un dict evento en la línea del archivo."""
+    return f"{evento['artista']};{evento['estadio']};{evento['fecha']};{evento['hora']};{evento['precio']};{evento['entradas']['total']};{evento['entradas']['disponibles']}"
+
+def mostrar_eventos():
+    """Muestra todos los eventos leyendo línea por línea"""
+
+    try:
+        arch = open("eventos.txt", "rt")
+        titulo = "\n▶   LISTA DE EVENTOS "
+        print(titulo.ljust(40, "━"))
+        print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
+        print("━" * 90)
+
+        linea = arch.readline()
+        numero = 1
+
+        while linea != "":
+            linea = linea.strip()
+            partes = linea.split(";")
+
+            if len(partes) == 7:
+                artista, estadio, fecha, hora, precio, total, disponibles = partes
+
+                print(f"{numero:<3} {artista:<20} {estadio:<20} {fecha:<12} {hora:<7} ${precio:<8} {disponibles}")
+
+                numero += 1
+            linea = arch.readline()
+        arch.close()
+        print("\n")
+    except FileNotFoundError as mensaje:
+        print("No se pudo abrir el archivo:", mensaje)
+    except OSError as mensaje:
+            print("No se puede leer el archivo:", mensaje)
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+
+def obtener_linea_por_indice(indice_a_buscar):
+    try:
+        arch = open("eventos.txt", "rt")
+        linea = arch.readline()
+        indice = 1
+
+        while linea != "":
+            if indice == indice_a_buscar:
+                arch.close()
+                return linea.strip()
+            linea = arch.readline()
+            indice += 1
+        arch.close()
+        return None
+    except:
+        return None
+
+def cantidad_de_eventos():
+    """Cuenta cuántas líneas válidas de evento hay en el archivo (sin cargarlas)."""
+    cuenta = 0
+    try:
+        arch = open("eventos.txt", "rt")
+        linea = arch.readline()
+        partes = linea.split(";")
+        while linea != "":
+            if len(partes) == 7:
+                cuenta += 1
+    except FileNotFoundError:
+        return 0
+    except OSError as mensaje:
+        print("Error al contar eventos:", mensaje)
+        return 0
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+    return cuenta 
+
+def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     """Crea un nuevo evento si no existe otro con el mismo artista en la misma fecha"""
+    try:
 
-    existe = False
+        existe = False
+        arch = open("eventos.txt", "rt")
+        linea = arch.readline()
+        while linea != "":
+            evento = evento_seleccionado(linea)
+        
+            if evento["artista"].lower() == artista.lower() and evento["fecha"] == fecha:
+                    existe = True
+            linea = arch.readline()
+        arch.close()
+        arch= None
+        if existe == True:
+            print("Error, ya existe un evento con ese artista en esa fecha.")
+            return 
+        arch = open("eventos.txt", "at")
+        arch.write(f"{artista};{estadio};{fecha};{hora};{precio};{cantidad};{cantidad}\n")
+        print("Evento creado con éxito.")
+    except FileNotFoundError as mensaje:
+        print("No se pudo abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
 
-    for evento in eventos:
-        if evento['artista'] == artista and evento['fecha'] == fecha:
-            existe = True
-    if existe == True:
-        print("Error, ya existe un evento con ese artista en esa fecha.")
-        return 
+#REVISAR SIOSI RARO 
+def modificar_evento_en_archivo(indice_objetivo, campo, nuevo_valor):
+    """
+    Modifica un atributo del evento en la línea índice_objetivo (0-based entre líneas válidas).
+    campo: 'artista', 'estadio', 'fecha', 'hora', 'precio', 'total_entradas'
+    """
+    encontrado = False
+    numero_linea = 0
+    try:
+        entrada = open("eventos.txt","rt")
+        salida = open("temp.txt","wt")
+        k = 0
+        for linea in entrada:
+            evento = evento_seleccionado(linea)
+            if evento is None:
+                salida.write(linea)  # copia línea no válida tal cual
+                continue
+            if numero_linea == indice_objetivo:
+                encontrado = True
+                # aplicar modificación
+                if campo == 'artista':
+                    evento['artista'] = nuevo_valor.strip() or evento['artista']
+                elif campo == 'estadio':
+                    evento['estadio'] = nuevo_valor.strip() or evento['estadio']
+                elif campo == 'fecha':
+                    try:
+                        datetime.strptime(nuevo_valor, "%Y-%m-%d")
+                        evento['fecha'] = nuevo_valor
+                    except Exception:
+                        print("Formato de fecha inválido. No se modificó.")
+                elif campo == 'hora':
+                    try:
+                        datetime.strptime(nuevo_valor, "%H:%M")
+                        evento['hora'] = nuevo_valor
+                    except Exception:
+                        print("Formato de hora inválido. No se modificó.")
+                elif campo == 'precio':
+                    try:
+                        evento['precio'] = int(nuevo_valor)
+                    except ValueError:
+                        print("Precio inválido. No se modificó.")
+                elif campo == 'total_entradas':
+                    try:
+                        nuevo_total = int(nuevo_valor)
+                        vendidas = evento['entradas']['total'] - evento['entradas']['disponibles']
+                        if nuevo_total < vendidas:
+                            print("La nueva cantidad no puede ser menor a las entradas ya vendidas. No se modificó.")
+                        else:
+                            diferencia = nuevo_total - evento['entradas']['total']
+                            evento['entradas']['total'] = nuevo_total
+                            evento['entradas']['disponibles'] += diferencia
+                    except ValueError:
+                        print("Cantidad inválida. No se modificó.")
+                # escribir línea modificada
+                salida.write(evento_a_linea(evento) + "\n")
+            else:
+                salida.write(linea)
+            if evento is not None:
+                numero_linea += 1
+    
+    except FileNotFoundError as mensaje:
+        print("No se puede abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("ERROR: ", mensaje)
+    else:
+        print("Copia finalizada. Líneas copiadas:", k)
+    finally:
+        try:
+            entrada.close( )
+            salida.close( )
+        except NameError:
+            pass
 
-    nuevo_evento = {"artista": artista, "estadio": estadio, "fecha": fecha, "hora": hora, "precio": precio, "entradas": {"total": cantidad, "disponibles": cantidad}}
-    guardar_nuevo_evento(nuevo_evento)
-    print("Evento creado con éxito.")
+    if not encontrado:
+        try:
+            os.remove("temp.txt")
+        except OSError:
+            pass
+        print("Índice no encontrado. No se hicieron cambios.")
+        return
+    try:
+        os.replace(TEMP_FILE, EVENTOS_FILE)  # atómico en muchos SO
+    except OSError as e:
+        print("Error al reemplazar archivo:", e)
+        return
+    print("Evento modificado con éxito.")
 
 
 def modificar_evento(eventos, indice, opcion, nuevo_valor):
@@ -312,8 +564,49 @@ def eliminar_evento(eventos, indice):
     guardar_eventos_en_archivo(eventos)
 
 
+def eliminar_evento_en_archivo(indice_objetivo):
+    """Elimina la línea de evento correspondiente al índice (0-based entre líneas válidas)."""
+    encontrado = False
+    numero_linea = 0
+    try:
+        with open("eventos.txt", "rt", encoding="utf-8") as entrada, open("temp.txt", "wt", encoding="utf-8") as salida:
+            for linea in entrada:
+                evento = evento_seleccionado(linea)
+                if evento is None:
+                    salida.write(linea)
+                    continue
+                if numero_linea == indice_objetivo:
+                    encontrado = True
+                    # omitimos escribirla --> la eliminamos
+                else:
+                    salida.write(linea)
+                numero_linea += 1
+    except FileNotFoundError:
+        print("No existe el archivo de eventos.")
+        return
+    except OSError as e:
+        print("Error al eliminar evento:", e)
+        return
+
+    if not encontrado:
+        try:
+            os.remove("temp.txt")
+        except OSError:
+            pass
+        print("Índice no encontrado. No se eliminó nada.")
+        return
+
+    try:
+        os.replace("temp.txt", "eventos.txt")
+    except OSError as e:
+        print("Error al reemplazar archivo:", e)
+        return
+
+    print("Evento eliminado con éxito.")
+
+"""
 def obtener_siguiente_factura(ventas):
-    """Devuelve el numero_factura siguiente (max+1) a partir de ventas en memoria"""
+  #  Devuelve el numero_factura siguiente (max+1) a partir de ventas en memoria""
     
     if len(ventas) == 0:
         max_factura = 0
@@ -321,6 +614,61 @@ def obtener_siguiente_factura(ventas):
         max_factura = max(v["numero_factura"] for v in ventas)
     return max_factura + 1
 
+"""
+
+def obtener_siguiente_factura():
+    """Calcula el número de factura siguiente buscando el max en ventas.txt sin cargar todo."""
+    max_factura = 0
+    try:
+        with open("ventas.txt", "rt", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea == " ":
+                    continue
+                partes = linea.split(";")
+                if len(partes) != 7:
+                    continue
+                try:
+                    factura = int(partes[6])
+                    if factura > max_factura:
+                        max_factura = factura
+                except ValueError:
+                    continue
+    except FileNotFoundError:
+        return 1
+    except OSError as e:
+        print("Error al leer ventas:", e)
+        return max_factura + 1
+    return max_factura + 1
+
+#este raro nose
+def buscar_venta_por_email_factura(email, factura):
+    """Busca una venta que coincida con email y número de factura. Devuelve dict o None."""
+    try:
+        arch = open("eventos.txt", "rt")
+        while linea != " ":
+                linea = linea.strip()
+                partes = linea.split(";")
+                if len(partes) != 7:
+                    continue
+                try:
+                    indice = int(partes[0])
+                    nombre = partes[1]
+                    apellido = partes[2]
+                    email_cl = partes[3]
+                    numero_de_DNI = partes[4]
+                    num_entradas = int(partes[5])
+                    num_factura = int(partes[6])
+                except ValueError:
+                    continue
+                if email_cl == email and num_factura == factura:
+                    return {"indice": indice, "nombre": nombre, "apellido": apellido, "email": email_cl, "numero_de_DNI": numero_de_DNI, "numero_entradas": num_entradas, "numero_factura": num_factura}
+    except FileNotFoundError:
+        return None
+    except OSError as e:
+        print("Error al leer ventas:", e)
+        return None
+    return None
 
 def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
     """Imprime la factura de la compra realizada"""
@@ -333,6 +681,79 @@ def imprimir_factura(factura, nombre, apellido, email, numero_de_tramite, cantid
     print("Número de trámite: ", numero_de_tramite)
     print("Cantidad de entradas compradas: ", cantidad_entradas)
     print("".ljust(40, "━")+"\n")
+
+def vender_entrada_por_indice(indice_evento, nombre, apellido, email, numero_de_DNI, cantidad_entradas):
+    """Vende entradas de un evento identificado por índice (0-based). No carga eventos en memoria."""
+    try:
+        cantidad_entradas = int(cantidad_entradas)
+    except ValueError:
+        print("Cantidad inválida.")
+        return
+
+    if cantidad_entradas > 6:
+        print("No se pueden vender más de 6 entradas por persona.")
+        return
+
+    # Buscamos el evento y simultáneamente creamos un temp con la línea modificada
+    encontrado = False
+    num_evento = 0
+    factura = obtener_siguiente_factura()
+
+    try:
+        with open(EVENTOS_FILE, "rt", encoding="utf-8") as entrada, open(TEMP_FILE, "wt", encoding="utf-8") as salida:
+            for linea in entrada:
+                evento = evento_seleccionado(linea)
+                if evento is None:
+                    salida.write(linea)
+                    continue
+                if num_evento == indice_evento:
+                    encontrado = True
+                    if evento['entradas']['disponibles'] >= cantidad_entradas:
+                        evento['entradas']['disponibles'] -= cantidad_entradas
+                        salida.write(evento_a_linea(evento) + "\n")
+                        venta = {
+                            "indice": indice_evento,
+                            "nombre": nombre,
+                            "apellido": apellido,
+                            "email": email,
+                            "numero_de_DNI": numero_de_DNI,
+                            "numero_entradas": cantidad_entradas,
+                            "numero_factura": factura
+                        }
+                        # registramos la venta (append)
+                        guardar_venta_en_archivo(venta)
+                        # imprimimos factura
+                        imprimir_factura(factura, nombre, apellido, email, numero_de_DNI, cantidad_entradas)
+                        print(f"Vendidas {cantidad_entradas} entradas para {evento['artista']}.")
+                    elif evento['entradas']['disponibles'] == 0:
+                        salida.write(linea)  # sin cambios
+                        print("El evento está agotado.")
+                    else:
+                        salida.write(linea)
+                        print("No hay suficientes entradas disponibles.")
+                else:
+                    salida.write(linea)
+                num_evento += 1
+    except FileNotFoundError:
+        print("No existe el archivo de eventos.")
+        return
+    except OSError as e:
+        print("Error al procesar la venta:", e)
+        return
+
+    if not encontrado:
+        try:
+            os.remove("temp.txt")
+        except OSError:
+            pass
+        print("Índice de evento no encontrado. No se realizó la venta.")
+        return
+
+    try:
+        os.replace("temp.txt", "eventos.txt")
+    except OSError as e:
+        print("Error al guardar cambios en eventos:", e)
+        return
 
 
 def vender_entrada(eventos, indice, nombre, apellido, email, numero_de_tramite, cantidad_entradas):
@@ -399,6 +820,61 @@ def cancelar_entrada(eventos, ventas, email, numero_de_tramite, factura, cantida
             print(f"Se cancelaron {cantidad} entradas del evento '{eventos[indice_evento]['artista']}' correctamente.")
 
 
+def cancelar_entrada_por_email_factura(email, numero_de_DNI, factura, cantidad):
+    """Cancela entradas: busca la venta por email+factura y, si existe y cantidad válida, registra la cancelación y actualiza stock."""
+    try:
+        factura = int(factura)
+        cantidad = int(cantidad)
+    except ValueError:
+        print("Factura o cantidad inválida.")
+        return
+
+    venta = buscar_venta_por_email_factura(email, factura)
+    if venta is None:
+        print("No hay entradas vendidas bajo ese mail o número de factura.")
+        return
+
+    if cantidad > abs(venta['numero_entradas']):  # numero_entradas >0 para venta original
+        print("No puede cancelar más entradas de las que compró.")
+        return
+    indice_evento = venta['indice']
+    # Primero actualizamos el archivo de eventos (sumamos stock)
+    encontrado = False
+    num_evento = 0
+    try:
+        with open(EVENTOS_FILE, "rt", encoding="utf-8") as entrada, open(TEMP_FILE, "wt", encoding="utf-8") as salida:
+            for linea in entrada:
+                evento = evento_seleccionado(linea)
+                if evento is None:
+                    salida.write(linea)
+                    continue
+                if num_evento == indice_evento:
+                    encontrado = True
+                    evento['entradas']['disponibles'] += cantidad
+                    salida.write(evento_a_linea(evento) + "\n")
+                else:
+                    salida.write(linea)
+                num_evento += 1
+    except FileNotFoundError:
+        print("No existe archivo de eventos.")
+        return
+    except OSError as e:
+        print("Error al actualizar eventos en la cancelación:", e)
+        return
+    # Segundo: registrar la cancelación como una venta con numero_entradas negativo
+    nueva_venta = {
+        "indice": indice_evento,
+        "nombre": venta['nombre'],
+        "apellido": venta['apellido'],
+        "email": email,
+        "numero_de_DNI": numero_de_DNI,
+        "numero_entradas": -cantidad,
+        "numero_factura": factura
+    }
+    guardar_venta_en_archivo(nueva_venta)
+    print(f"Se cancelaron {cantidad} entradas del evento correctamente.")
+   
+
 def ver_entradas_vendidas(eventos):
     """Muestra la cantidad de entradas vendidas por evento"""
 
@@ -450,20 +926,34 @@ def analisis_datos(eventos):
     print("\n")
 
 
-
-def busqueda_artista(eventos, artista):
+#en busqueda artista, ver el tema de como se imprimen los eventos encontrados
+def busqueda_artista(artista):
     """Busca eventos por artista y los muestra"""
-
-    artista_encontrado = list(filter(lambda evento: artista.lower() in evento['artista'].lower(), eventos))
-    if artista_encontrado:
-        titulo = "\n▶  Eventos encontrados: "
-        print(titulo.ljust(40, "━"))
-        print(f"{'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
-        for evento in artista_encontrado: 
-            print(f"{evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7} ${evento['precio']:<7} {evento['entradas']['disponibles']:<9}")
-    else:
-        print("No se encontraron eventos para", artista)
-
+    try:
+        arch= open("eventos.txt", "rt")
+        linea=arch.readline()
+        artista = artista.lower()
+        encontrado = False 
+        while linea!="":
+            evento = evento_seleccionado(linea)
+            if artista in evento['artista'].lower():
+                encontrado = True
+                titulo = "\n▶  Eventos encontrados: "
+                print(titulo.ljust(40, "━"))
+                print(f"{'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}")
+                print(f"{evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7} ${evento['precio']:<7} {evento['entradas']['disponibles']:<9}")
+            linea=arch.readline() 
+        if not encontrado: 
+            print("No se encontraron eventos para", artista)
+    except FileNotFoundError as mensaje:
+        print("No se pudo abrir el archivo:", mensaje)
+    except OSError as mensaje:
+            print("No se puede leer el archivo:", mensaje)
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
 
 # MENÚS PRINCIPALES
 
@@ -482,7 +972,7 @@ def mostrar_menu():
 def menu_eventos():
     """Muestra el menú de administración de eventos"""
 
-    eventos = cargar_eventos_desde_archivo()
+    
 
     titulo = "\n ★   MENÚ EVENTOS  "
     print(titulo.ljust(40, "━"))
@@ -502,12 +992,12 @@ def menu_eventos():
 
     # Mostrar eventos
     if opcion_eventos == 0:
-        mostrar_eventos(eventos)
+        mostrar_eventos()
 
     # Buscar evento por artista
     elif opcion_eventos == 1:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
-        busqueda_artista(eventos, artista)
+        busqueda_artista(artista)
 
     # Crear evento
     elif opcion_eventos == 2:
@@ -517,11 +1007,11 @@ def menu_eventos():
         hora = validar_hora(input("Ingrese la hora del evento (HH:MM): "))
         precio = validar_numero(input("Ingrese el precio de la entrada: "))
         cantidad = validar_numero(input("Ingrese la cantidad de entradas disponibles: "))
-        crear_evento(eventos, artista, estadio, fecha, hora, precio, cantidad)
+        crear_evento( artista, estadio, fecha, hora, precio, cantidad)
 
     # Modificar evento
     elif opcion_eventos == 3:
-        mostrar_eventos(eventos)
+        mostrar_eventos()
         print("\n")
         indice = validar_indice(len(eventos), input("Seleccione el evento a modificar: "))
         print("\n")
