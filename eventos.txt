@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Taylor Swift;Estadio Nacional;2025-09-15;20:00;50000;1000;988
+=======
+Taylor Swift;River Plate;2025-09-15;20:20;50000;10;2
+>>>>>>> 464e268f99a89f0ec640a2f7a0aa79c32596b47d
 Coldplay;Estadio Nacional;2023-11-01;21:00;60000;1500;1495
 Bad bunny;Estadio Nacional;2023-12-01;22:00;70000;2000;1999
 Dua Lipa;Luna Park;2025-03-10;21:00;45000;1200;1197
