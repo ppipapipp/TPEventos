@@ -1,3 +1,11 @@
 0;sda;asdsa;mildsda@ds.;12345678;4;1
 0;sda;asdsa;mildsda@ds.;12345678;-1;1
 1;a;b;ab@b.;12345678;2;2
+0;sda;asdsa;mildsda@ds.;12345678;-2;1
+0;sda;asdsa;mildsda@ds.;12345678;-1;1
+1;a;b;ab@b.;12345678;-1;2
+2;asdas;adas;asd@sd.;12345678;3;3
+2;asdsa;ada;ada@sad.;12345678;2;4
+2;asd;asd;asd@sd.;12345678;2;5
+2;asd;asd;asd@sd.;12345678;-2;5
+1;sda;dsad;sad@dsda.;12345678;2;6

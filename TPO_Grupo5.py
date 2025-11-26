@@ -1,5 +1,6 @@
 from datetime import datetime
 import os 
+
 # FUNCIONES DE ARCHIVOS Y GUARDADO DE DATOS
 
 def guardar_nuevo_evento(evento):
@@ -281,7 +282,6 @@ def mostrar_eventos():
             pass
 
 
-#arreglado. antes se rompia no mas :)
 def mostrar_ventas():
     """Muestra la lista de ventas registradas leyendo línea por línea"""
     try:
@@ -360,6 +360,7 @@ def evento_seleccionado(linea):
 #falta cerrar bien archivo, no tengo mas bateria despues sigo. 
 def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
     """Crea un nuevo evento si no existe otro con el mismo artista en la misma fecha"""
+
     existe = False
     
     try:
@@ -382,8 +383,12 @@ def crear_evento(artista, estadio, fecha, hora, precio, cantidad):
         pass
     except OSError as mensaje:
         print("Error al leer el archivo:", mensaje)
-        return
-    
+    finally:
+        try:
+            arch.close()
+        except NameError:
+            pass
+
     if existe:
         print("Error, ya existe un evento con ese artista en esa fecha.")
         return 
@@ -400,7 +405,7 @@ def modificar_evento(indice, opcion, nuevo_valor):
         entrada = open("eventos.txt", "rt")
         salida = open("eventos2.txt", "wt")
 
-        linea =entrada.readline()
+        linea = entrada.readline()
         nro_actual = 1
         while linea != "":
             evento = evento_seleccionado(linea)
@@ -464,11 +469,12 @@ def modificar_evento(indice, opcion, nuevo_valor):
 
 def eliminar_evento(indice):
     """Elimina un evento de la lista de eventos"""
+
     try: 
-        entrada=open("eventos.txt","rt")
-        salida=open("eventos2.txt","wt")
-        linea=entrada.readline()
-        numero=1
+        entrada = open("eventos.txt","rt")
+        salida = open("eventos2.txt","wt")
+        linea = entrada.readline()
+        numero = 1
         while linea != "":
             if numero != indice:
                 salida.write(linea)
@@ -494,59 +500,6 @@ def eliminar_evento(indice):
         print("Error al reemplazar archivo:", mensaje)
             
 
-#esta no funciona, dejo la que funcionaba antes. revisar 
-"""
-def eliminar_evento(indice):
-    "Elimina un evento de la lista de eventos"
-    try:
-        entrada = open("eventos.txt", "rt")
-        salida = open("temp.txt", "wt")
-        numero_linea = 0
-        encontrado = False
-        artista_eliminado = ""
-        
-        linea = entrada.readline()
-        while linea != "":
-            linea = linea.strip()
-            if linea:
-                partes = linea.split(";")
-                if len(partes) == 7:
-                    if numero_linea == indice:
-                        encontrado = True
-                        artista_eliminado = partes[0]
-                    else:
-                        salida.write(linea)
-                    numero_linea += 1
-                else:
-                    salida.write(linea)
-            else:
-                salida.write(linea)
-            linea = entrada.readline()
-    except FileNotFoundError as mensaje:
-        print("No se puede abrir el archivo:", mensaje)
-    except OSError as mensaje:
-        print("Error al eliminar:", mensaje)
-    finally:
-        try:    
-            entrada.close()
-        except NameError:
-            pass
-        try:
-            salida.close()
-        except NameError:
-            pass
-    if encontrado:
-        try:
-            os.replace("temp.txt", "eventos.txt")
-            print("Evento eliminado:", artista_eliminado)
-        except OSError as mensaje:
-            print("Error al guardar cambios:", mensaje)
-    else:
-            os.remove("temp.txt")
-            print("Evento no encontrado.")
-
-"""
-
 def obtener_siguiente_factura():
     """Devuelve el numero_factura siguiente usando recursividad"""
     try:
@@ -571,21 +524,24 @@ def imprimir_factura(factura, nombre, apellido, email, numero_dni, cantidad_entr
     print("Cantidad de entradas compradas: ", cantidad_entradas)
     print("".ljust(40, "━")+"\n")
 
-#FUNCIONA MAL. VENDE AL SIGUIENTE. 
+
 def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantidad_entradas):
     """Vende entradas de un evento, si hay suficientes disponibles"""
+
     while cantidad_entradas > 6:
         print("No se pueden vender más de 6 entradas por persona.")
         cantidad_entradas = validar_numero(input("Ingrese la cantidad de entradas a vender (máximo 6): "))
 
+    encontrado = False
+    venta_realizada = False
+
     try:
         entrada = open("eventos.txt", "rt")
-        salida = open("temp.txt", "wt")
-        numero_linea = 0
-        encontrado = False
-        venta_realizada = False
+        salida = open("eventos2.txt", "wt")
         
+        numero_linea = 0
         linea = entrada.readline()
+
         while linea != "":
             linea_limpia = linea.strip()
             if linea_limpia:
@@ -599,11 +555,12 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
                         if disponibles_int >= cantidad_entradas:
                             disponibles_int -= cantidad_entradas
                             salida.write(f"{artista};{estadio};{fecha};{hora};{precio};{total};{disponibles_int}\n")
-                            
+
                             factura = obtener_siguiente_factura()
-                            venta = {"indice": indice_objetivo, "nombre": nombre, "apellido": apellido, "email": email, "numero_dni": numero_dni, "numero_entradas": cantidad_entradas, "numero_factura": factura}
+                            venta = {"indice": indice_objetivo-1, "nombre": nombre, "apellido": apellido, "email": email,
+                                     "numero_dni": numero_dni, "numero_entradas": cantidad_entradas, "numero_factura": factura}
                             guardar_venta_en_archivo(venta)
-                            
+
                             print("Vendidas", cantidad_entradas, "entradas para", artista)
                             imprimir_factura(factura, nombre, apellido, email, numero_dni, cantidad_entradas)
                             venta_realizada = True
@@ -620,36 +577,40 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
                     salida.write(linea)
             else:
                 salida.write(linea)
+
             linea = entrada.readline()
-        
-        if encontrado and venta_realizada:
-            try:
-                os.replace("temp.txt", "eventos.txt")
-            except OSError as mensaje:
-                print("Error al guardar cambios:", mensaje)
-        else:
-            os.remove("temp.txt")
-            if not encontrado:
-                print("Evento no encontrado.")           
+
     except FileNotFoundError as mensaje:
         print("No se puede abrir el archivo:", mensaje)
+        return
     except OSError as mensaje:
         print("Error al vender:", mensaje)
+        return
     finally:
         try:
-            entrada.close()            
-        except NameError:
-            pass 
+            entrada.close()
+        except:
+            pass
         try:
             salida.close()
-        except NameError:
+        except:
             pass
 
+    if encontrado and venta_realizada:
+        try:
+            os.replace("eventos2.txt", "eventos.txt")
+        except OSError as mensaje:
+            print("Error al guardar cambios:", mensaje)
+    else:
+        os.remove("eventos2.txt")
+        if not encontrado:
+            print("Evento no encontrado.")
 
 
-#raro el return. cerre bien el archivo.
+
 def buscar_venta(email, factura):
     """Busca una venta por email y factura, devuelve el índice y cantidad"""
+
     try:
         arch = open("ventas.txt", "rt")
         linea = arch.readline()
@@ -663,11 +624,11 @@ def buscar_venta(email, factura):
                     if email_v == email and int(factura_v) == factura:
                         return indice,cantidad, nombre, apellido
             linea = arch.readline()
-        return None, None, None, None
-    except FileNotFoundError:
-        return None, None, None, None
-    except OSError:
-        return None, None, None, None
+        return False
+    except FileNotFoundError as mensaje:
+        print("No se puede abrir el archivo:", mensaje)
+    except OSError as mensaje:
+        print("Error al vender:", mensaje)
     finally:
         try:
             arch.close()
@@ -679,18 +640,17 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
     """Cancela entradas vendidas de un evento"""
     indice_evento, entradas_compradas, nombre, apellido = buscar_venta(email, factura)
     
-    if indice_evento is None:
+    if indice_evento == "":
         print("No hay entradas vendidas bajo ese mail o número de factura.")
         return
     
-    if cantidad > entradas_compradas:
+    if int(cantidad) > int(entradas_compradas):
         print("No puede cancelar más entradas de las que compró.")
         return
     
-    # Actualiza el archivo de eventos
     try:
         entrada = open("eventos.txt", "rt")
-        salida = open("temp.txt", "wt")
+        salida = open("eventos2.txt", "wt")
         numero_linea = 0
         
         linea = entrada.readline()
@@ -713,11 +673,10 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
                 salida.write(linea)
             linea = entrada.readline()
 
-        # Registra la cancelación, cant negativa de entradas. 
         nueva_venta = {"indice": indice_evento, "nombre": nombre, "apellido": apellido, "email": email, "numero_dni": numero_dni, "numero_entradas": -cantidad, "numero_factura": factura}
         guardar_venta_en_archivo(nueva_venta)
         
-        print(f"Se cancelaron {cantidad} entradas del evento '{artista_cancelado}' correctamente.") 
+        print(f"Se cancelaron {cantidad} entradas del evento correctamente.") 
     except FileNotFoundError as mensaje:
         print("No se puede abrir el archivo:", mensaje)
     except OSError as mensaje:
@@ -735,6 +694,7 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
 
 def ver_entradas_vendidas():
     """Muestra la cantidad de entradas vendidas por evento"""
+
     try:
         arch = open("eventos.txt", "rt")
         titulo = "\n  ENTRADAS VENDIDAS POR EVENTO "
@@ -755,7 +715,7 @@ def ver_entradas_vendidas():
                     tiene_eventos = True
             linea = arch.readline()
         
-        if not tiene_eventos:
+        if tiene_eventos == False:
             print("No hay eventos registrados.")
         print("\n")
     except FileNotFoundError:
@@ -845,8 +805,8 @@ def busqueda_artista(artista):
             pass
 
 
-
 # MENÚS PRINCIPALES
+
 
 def mostrar_menu():
     """Muestra el menú principal"""
