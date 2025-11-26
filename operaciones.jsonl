@@ -1,0 +1,9 @@
+{"indice": 1, "nombre": "Ricardo", "apellido": "Thompson", "email": "rthompson@gmail.com", "numero_dni": 28123456, "numero_entradas": 2, "numero_factura": 1, "sector": "VIP"}
+{"indice": 1, "nombre": "Agus", "apellido": "Barbero", "email": "abarbero@hotmail.com", "numero_dni": 32654987, "numero_entradas": 4, "numero_factura": 2, "sector": "Campo General"}
+{"indice": 1, "nombre": "Constanza", "apellido": "Escribano", "email": "cescribano@yahoo.com.ar", "numero_dni": 35987123, "numero_entradas": 2, "numero_factura": 3, "sector": "Platea Alta"}
+{"indice": 3, "nombre": "Milena", "apellido": "Dawidowicz", "email": "mdawidowicz@gmail.com", "numero_dni": 39456789, "numero_entradas": 3, "numero_factura": 4, "sector": "Super Pullman"}
+{"indice": 3, "nombre": "Agostina", "apellido": "Cerliani", "email": "acerliani@outlook.com", "numero_dni": 41234567, "numero_entradas": 2, "numero_factura": 5, "sector": "Campo"}
+{"indice": 4, "nombre": "German", "apellido": "Hernandez", "email": "ghernandez@gmail.com", "numero_dni": 30876543, "numero_entradas": 2, "numero_factura": 6, "sector": "Preferencial"}
+{"indice": 5, "nombre": "Sofia", "apellido": "Martinez", "email": "smartinez@gmail.com", "numero_dni": 33444555, "numero_entradas": 2, "numero_factura": 7, "sector": "Platea Baja"}
+{"indice": 6, "nombre": "Lucas", "apellido": "Rodriguez", "email": "lrodriguez@hotmail.com", "numero_dni": 29111222, "numero_entradas": 4, "numero_factura": 8, "sector": "Campo"}
+{"indice": 6, "nombre": "Lucas", "apellido": "Rodriguez", "email": "lrodriguez@hotmail.com", "numero_dni": 29111222, "numero_entradas": -2, "numero_factura": 8, "sector": "Campo"}

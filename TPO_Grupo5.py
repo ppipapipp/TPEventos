@@ -22,9 +22,9 @@ def guardar_nuevo_evento(evento):
 
 
 def guardar_venta_en_archivo(venta):
-    """Guarda una venta en 'ventas.jsonl' en formato JSON"""
+    """Guarda una venta en 'operaciones.jsonl' en formato JSON"""
     try:
-        arch = open("ventas.jsonl", "a")
+        arch = open("operaciones.jsonl", "a")
         json.dump(venta, arch)
         arch.write("\n")
     except OSError as mensaje:
@@ -39,6 +39,7 @@ def guardar_venta_en_archivo(venta):
 
 
 # FUNCIONES DE VALIDACIÓN
+
 
 def validar_no_es_vacio(cadena):
     """Valida que la cadena no esté vacía"""
@@ -146,11 +147,14 @@ def validar_email(email):
     return email
 
 
-# FUNCIONES RECURSIVAS PARA CÁLCULOS (ADAPTADAS A SECTORES)
+# FUNCIONES ANÁLISIS DE DATOS
 
-def contar_entradas_vendidas_recursivo(arch, acumulador=0):
+
+def contar_entradas_vendidas(arch, acumulador=0):
     """Cuenta recursivamente sumando las ventas de todos los sectores"""
+
     linea = arch.readline()
+
     if linea == "":
         return acumulador
     
@@ -161,22 +165,22 @@ def contar_entradas_vendidas_recursivo(arch, acumulador=0):
             sectores = registro['sectores']
             vendidas_evento = 0
             
-            # Recorremos el diccionario de sectores del evento
             for datos_sector in sectores.values():
                 total = datos_sector['cantidad']
-                # Si no existe clave disponibles (datos viejos), asumimos que es igual a cantidad (nada vendido)
                 disponibles = datos_sector.get('disponibles', total)
                 vendidas_evento += (total - disponibles)
             
-            return contar_entradas_vendidas_recursivo(arch, acumulador + vendidas_evento)
-        except (ValueError, KeyError, json.JSONDecodeError):
-            return contar_entradas_vendidas_recursivo(arch, acumulador)
-    return contar_entradas_vendidas_recursivo(arch, acumulador)
+            return contar_entradas_vendidas(arch, acumulador + vendidas_evento)
+        except (ValueError):
+            return contar_entradas_vendidas(arch, acumulador)
+    return contar_entradas_vendidas(arch, acumulador)
 
 
-def calcular_recaudacion_recursivo(arch, acumulador=0):
+def calcular_recaudacion(arch, acumulador=0):
     """Calcula recursivamente la recaudación total sumando precio*vendidas por sector"""
+
     linea = arch.readline()
+
     if linea == "":
         return acumulador
     
@@ -194,15 +198,17 @@ def calcular_recaudacion_recursivo(arch, acumulador=0):
                 vendidas = total - disponibles
                 recaudado_evento += (vendidas * precio)
                 
-            return calcular_recaudacion_recursivo(arch, acumulador + recaudado_evento)
-        except (ValueError, KeyError, json.JSONDecodeError):
-            return calcular_recaudacion_recursivo(arch, acumulador)
-    return calcular_recaudacion_recursivo(arch, acumulador)
+            return calcular_recaudacion(arch, acumulador + recaudado_evento)
+        except (ValueError):
+            return calcular_recaudacion(arch, acumulador)
+    return calcular_recaudacion(arch, acumulador)
 
 
-def encontrar_mas_vendido_recursivo(arch, max_vendidas=0, artista_max=""):
+def encontrar_mas_vendido(arch, max_vendidas=0, artista_max=""):
     """Encuentra el evento con más entradas vendidas sumando sus sectores"""
+
     linea = arch.readline()
+
     if linea == "":
         return max_vendidas, artista_max
     
@@ -220,31 +226,43 @@ def encontrar_mas_vendido_recursivo(arch, max_vendidas=0, artista_max=""):
                 vendidas_totales += (total - disponibles)
             
             if vendidas_totales > max_vendidas:
-                return encontrar_mas_vendido_recursivo(arch, vendidas_totales, artista)
-        except (ValueError, KeyError, json.JSONDecodeError):
+                return encontrar_mas_vendido(arch, vendidas_totales, artista)
+        except (ValueError):
             pass
-    return encontrar_mas_vendido_recursivo(arch, max_vendidas, artista_max)
+    return encontrar_mas_vendido(arch, max_vendidas, artista_max)
 
 
 def contar_eventos_recursivo(arch, contador=0):
-    """Cuenta recursivamente la cantidad de eventos"""
+    """Función recursiva para contar eventos (uso interno)"""
     linea = arch.readline()
-    if linea == "":
-        return contador
-    
+    if linea == "": return contador
     linea = linea.strip()
     if linea:
         try:
             json.loads(linea)
             return contar_eventos_recursivo(arch, contador + 1)
-        except json.JSONDecodeError:
-            pass
+        except: pass
     return contar_eventos_recursivo(arch, contador)
 
 
-def obtener_max_factura_recursivo(arch, max_actual=0):
+def contar_eventos():
+    """Cuenta cuántos eventos hay en el archivo usando recursividad"""
+    try:
+        arch = open("eventos.jsonl", "r")
+        cantidad = contar_eventos_recursivo(arch)
+        arch.close()
+        return cantidad
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
+
+
+def obtener_max_factura(arch, max_actual=0):
     """Obtiene recursivamente el número de factura máximo"""
+
     linea = arch.readline()
+
     if linea == "":
         return max_actual
     
@@ -254,22 +272,24 @@ def obtener_max_factura_recursivo(arch, max_actual=0):
             registro = json.loads(linea)
             factura = int(registro['numero_factura'])
             if factura > max_actual:
-                return obtener_max_factura_recursivo(arch, factura)
-        except (ValueError, KeyError, json.JSONDecodeError):
+                return obtener_max_factura(arch, factura)
+        except (ValueError):
             pass
-    return obtener_max_factura_recursivo(arch, max_actual)
+    return obtener_max_factura(arch, max_actual)
 
 
 # FUNCIONES PRINCIPALES
 
+
 def mostrar_eventos():
-    """Muestra todos los eventos y sus sectores"""
+    """Muestra todos los eventos con el formato solicitado"""
     try:
         arch = open("eventos.jsonl", "r")
         titulo = "\n▶   LISTA DE EVENTOS "
-        print(titulo.ljust(60, "━"))
-        print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7} {'Precio':<8} {'Entradas disponibles':<9}") 
-        print("━" * 90)
+        print(titulo.ljust(80, "━"))
+        print(f"{'N°':<3} {'Artista':<20} {'Estadio':<20} {'Fecha':<12} {'Hora':<7}") 
+        print("━" * 80)
+        print("\n")
         
         linea = arch.readline()
         numero = 1
@@ -279,20 +299,19 @@ def mostrar_eventos():
             if linea:
                 try:
                     evento = json.loads(linea)       
+                    total_disponibles_evento = 0
+                    for d in evento['sectores'].values():
+                        total_disponibles_evento += d.get('disponibles', d['cantidad'])
+                    print(f"{numero}. {evento['artista']:<20} {evento['estadio']:<20} {evento['fecha']:<12} {evento['hora']:<7}")
                     
-                    print(f"#{numero:<3} {evento['artista']:<20} {evento['estadio']} {evento['fecha']:<12} {evento['hora']:<7}")
-                    print("     SECTORES:")
-                    print(f"     {'-'*55}")
-                    print(f"     {'Nombre':<20} {'Precio':<10} {'Disp.':<8} {'Total':<8}")
-                    
+                    print("   ▶  Sectores: ")
                     for nombre_sec, datos in evento['sectores'].items():
                         total = datos['cantidad']
-                        # Manejo de compatibilidad si no existe la clave disponibles
                         disp = datos.get('disponibles', total) 
                         precio = datos['precio']
-                        print(f"     {nombre_sec:<20} ${precio:<9} {disp:<8} {total:<8}")
+                        print(f"   ━ {nombre_sec:<20} Precio: ${precio:<8} Disp: {disp}/{total}")
                     
-                    print("━" * 60)
+                    print("\n")
                     numero += 1
                 except Exception as e:
                     print(f"Línea inválida: {e}")
@@ -312,7 +331,7 @@ def mostrar_eventos():
 def mostrar_ventas():
     """Muestra la lista de operaciones registradas"""
     try:
-        arch = open("ventas.jsonl", "r")
+        arch = open("operaciones.jsonl", "r")
         titulo = "\n▶   LISTA DE OPERACIONES "
         print(titulo.ljust(80, "━"))
         print(f"{'N°':<3} {'Cliente':<20} {'Sector':<15} {'Factura':<9} {'Cant.':<6}")
@@ -328,21 +347,20 @@ def mostrar_ventas():
                 try:
                     venta = json.loads(linea)
                     nombre_completo = f"{venta['nombre']} {venta['apellido']}"
-                    # Si la venta es antigua y no tiene sector, ponemos "-"
                     sector = venta.get('sector', '-')
                     
                     print(f"{numero:<3} {nombre_completo:<20} {sector:<15} {venta['numero_factura']:<9} {venta['numero_entradas']:<6}")
                     numero += 1
                     tiene_ventas = True
-                except json.JSONDecodeError:
+                except:
                     pass
             linea = arch.readline()
         
         if not tiene_ventas:
             print("No hay ventas registradas.")
         print("\n")
-    except FileNotFoundError:
-        print("No hay ventas registradas.\n")
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
     except OSError as mensaje:
         print("No se puede leer el archivo:", mensaje)
     finally:
@@ -352,20 +370,9 @@ def mostrar_ventas():
             pass
 
 
-def contar_eventos():
-    """Cuenta cuántos eventos hay en el archivo usando recursividad"""
-    try:
-        arch = open("eventos.jsonl", "r")
-        cantidad = contar_eventos_recursivo(arch)
-        arch.close()
-        return cantidad
-    except FileNotFoundError:
-        return 0
-    except OSError:
-        return 0
-
 def evento_seleccionado(linea):
     """Convierte una línea de texto JSON en un dict evento o devuelve un diccionario vacio"""
+
     linea = linea.strip()
     if linea == "": 
         return {}
@@ -375,32 +382,39 @@ def evento_seleccionado(linea):
         return {}
 
 
-def obtener_info_estadio(nombre_estadio):
-    """Busca el estadio en estadios.jsonl y devuelve sus sectores o None"""
+def obtener_info_estadio_por_id(id_requerido):
+    """Busca el estadio en estadios.jsonl por número de línea (ID)"""
     try:
         arch = open("estadios.jsonl", "r")
         linea = arch.readline()
+        contador = 1
         while linea != "":
             linea = linea.strip()
             if linea:
                 try:
-                    estadio_data = json.loads(linea)
-                    if estadio_data['estadio'].lower() == nombre_estadio.lower():
+                    if contador == id_requerido:
+                        estadio_data = json.loads(linea)
                         arch.close()
-                        return estadio_data['sectores']
-                except:
-                    pass
+                        return estadio_data['estadio'], estadio_data['sectores']
+                    contador += 1
+                except: pass
             linea = arch.readline()
         arch.close()
-    except FileNotFoundError:
-        print("No se encontró el archivo estadios.jsonl")
-    return None
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
+    return False
 
 
-def crear_evento(artista, nombre_estadio, fecha, hora):
-    """Crea un nuevo evento copiando la configuración del estadio"""
+def crear_evento(artista, id_estadio, fecha, hora):
+    """Crea un nuevo evento buscando el estadio por ID"""
     
-    # 1. Validar duplicados
+    nombre_estadio, sectores_estadio = obtener_info_estadio_por_id(id_estadio)
+    
+    if nombre_estadio == "":
+        print("Error: ID de estadio no válido.")
+        return
+
+    #Validar duplicados
     existe = False
     try:
         arch = open("eventos.jsonl", "r")
@@ -413,51 +427,43 @@ def crear_evento(artista, nombre_estadio, fecha, hora):
                     if evento['artista'].lower() == artista.lower() and evento['fecha'] == fecha:
                         existe = True
                         break
-                except:
-                    pass
+                except: pass
             linea = arch.readline()
         arch.close()
-    except FileNotFoundError:
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo eventos.jsonl", mensaje)
         pass
 
     if existe:
         print("Error, ya existe un evento con ese artista en esa fecha.")
         return 
-
-    # 2. Obtener sectores del estadio
-    sectores_estadio = obtener_info_estadio(nombre_estadio)
-    if not sectores_estadio:
-        print(f"Error: No se encontró el estadio '{nombre_estadio}' en la base de datos.")
-        return
-
-    # 3. Preparar los sectores para el evento (inicializar disponibles)
+    
     sectores_evento = {}
     for nombre_sec, datos in sectores_estadio.items():
         sectores_evento[nombre_sec] = {
             "precio": datos['precio'],
             "cantidad": datos['cantidad'],
-            "disponibles": datos['cantidad'] # Inicializamos disponibles igual a cantidad
+            "disponibles": datos['cantidad'] 
         }
 
-    # 4. Crear el diccionario final
     nuevo_evento = {
         "artista": artista, 
-        "estadio": nombre_estadio, # Usamos el nombre como lo encontró o ingresó
+        "estadio": nombre_estadio,
         "fecha": fecha, 
         "hora": hora, 
         "sectores": sectores_evento
     }
     
     guardar_nuevo_evento(nuevo_evento)
-    print("Evento creado con éxito con la configuración del estadio.")
+    print(f"Evento creado con éxito en {nombre_estadio}.")
+
 
 
 def modificar_evento(indice, opcion):
-    """Modifica un atributo específico de un evento usando JSON."""
+    """Modifica un atributo específico de un evento usando json"""
     try:
         entrada = open("eventos.jsonl", "r")
         salida = open("eventos2.jsonl", "w")
-
         linea = entrada.readline()
         nro_actual = 1
         
@@ -470,34 +476,54 @@ def modificar_evento(indice, opcion):
                     if nro_actual == indice:
                         modificado = False
                         
+                        # Modificar nombre
                         if opcion == 0:      
                             nuevo = validar_no_es_vacio(input("Nuevo artista: "))
                             evento["artista"] = nuevo
                             modificado = True
+                        
+                        # Modificar fecha
                         elif opcion == 1:  
                             nuevo = validar_fecha(input("Nueva fecha (YYYY-MM-DD): "))
                             evento["fecha"] = nuevo
                             modificado = True
-                        elif opcion == 2:   
+
+                        # Modificar hora
+                        elif opcion == 2: 
                             nuevo = validar_hora(input("Nueva hora (HH:MM): "))
                             evento["hora"] = nuevo
                             modificado = True
-                        elif opcion == 3: # Modificar precio de un sector
-                            print("Sectores disponibles:", list(evento["sectores"].keys()))
-                            nom_sector = input("Ingrese nombre exacto del sector: ")
-                            if nom_sector in evento["sectores"]:
-                                nuevo_p = validar_numero(input("Nuevo precio: "))
+
+                        # Modificar precio
+                        elif opcion == 3:
+                            lista_sectores = list(evento["sectores"].keys())
+                            print("\nSectores disponibles:")
+                            for i, sec in enumerate(lista_sectores):
+                                print(f"{i+1}. {sec}")
+                            
+                            idx_sector = validar_numero(input("\nIngrese el número del sector: ")) - 1
+                            
+                            if 0 <= idx_sector < len(lista_sectores):
+                                nom_sector = lista_sectores[idx_sector]
+                                nuevo_p = validar_numero(input(f"Nuevo precio para {nom_sector}: "))
                                 evento["sectores"][nom_sector]["precio"] = nuevo_p
                                 modificado = True
-                            else:
-                                print("Sector no encontrado.")
-                        elif opcion == 4: # Modificar cantidad de un sector
-                            print("Sectores disponibles:", list(evento["sectores"].keys()))
-                            nom_sector = input("Ingrese nombre exacto del sector: ")
-                            if nom_sector in evento["sectores"]:
-                                nuevo_t = validar_numero(input("Nueva cantidad total: "))
+                            else: 
+                                print("Número de sector inválido.")
+
+                        # Modificar cant entradas
+                        elif opcion == 4:
+                            lista_sectores = list(evento["sectores"].keys())
+                            print("\nSectores disponibles:")
+                            for i, sec in enumerate(lista_sectores):
+                                print(f"{i+1}. {sec}")
+                            
+                            idx_sector = validar_numero(input("\nIngrese el número del sector: ")) - 1
+                            
+                            if 0 <= idx_sector < len(lista_sectores):
+                                nom_sector = lista_sectores[idx_sector]
+                                nuevo_t = validar_numero(input(f"Nueva cantidad total para {nom_sector}: "))
                                 datos = evento["sectores"][nom_sector]
-                                # Asegurar 'disponibles'
                                 disp_actual = datos.get("disponibles", datos["cantidad"])
                                 vendidas = datos["cantidad"] - disp_actual
                                 
@@ -508,40 +534,37 @@ def modificar_evento(indice, opcion):
                                     evento["sectores"][nom_sector]["cantidad"] = nuevo_t
                                     evento["sectores"][nom_sector]["disponibles"] = disp_actual + diferencia
                                     modificado = True
-                            else:
-                                print("Sector no encontrado.")
+                            else: 
+                                print("Número de sector inválido.")
 
                         if modificado:
                             json.dump(evento, salida)
                             salida.write("\n")
                         else:
-                            salida.write(linea) # Si falló la sub-opción, guardamos igual
+                            salida.write(linea)
                     else:
                         salida.write(linea)
-                    
                     nro_actual += 1
-                except Exception as e:
-                    print("Error procesando línea:", e)
+                except:
                     salida.write(linea) 
             else:
                 salida.write(linea)
             linea = entrada.readline()
-            
-        print("\nProceso de modificación finalizado.")
-    except FileNotFoundError:
-        print("No se encontró eventos.jsonl")
+        print("\nModificación finalizada.")
+    except FileNotFoundError as mensaje:
+        print("No se encontró eventos.jsonl", mensaje)
     except OSError as mensaje:
-        print("Error al leer/escribir el archivo:", mensaje)
+        print("Error de archivo", mensaje)
     finally:
         try: 
             entrada.close()
             salida.close()
         except: 
             pass            
-    try:
+    try: 
         os.replace("eventos2.jsonl", "eventos.jsonl")
-    except OSError:
-        print("No se pudo reemplazar el archivo original.")
+    except: 
+        pass
 
 
 def eliminar_evento(indice):
@@ -560,8 +583,8 @@ def eliminar_evento(indice):
             
             linea = entrada.readline()
         print("Evento eliminado con exito")
-    except FileNotFoundError:
-        print("No se encontro eventos.jsonl")
+    except FileNotFoundError as mensaje:
+        print("No se encontro eventos.jsonl", mensaje)
     except OSError as mensaje:
         print("Error al eliminar el evento:", mensaje)
     finally:
@@ -579,14 +602,14 @@ def eliminar_evento(indice):
 def obtener_siguiente_factura():
     """Devuelve el numero_factura siguiente usando recursividad"""
     try:
-        arch = open("ventas.jsonl", "r")
-        max_factura = obtener_max_factura_recursivo(arch)
+        arch = open("operaciones.jsonl", "r")
+        max_factura = obtener_max_factura(arch)
         arch.close()
         return max_factura + 1
-    except FileNotFoundError:
-        return 1
-    except OSError:
-        return 1
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
+    except OSError as mensaje:
+        print("No se puede leer el archivo:", mensaje)
 
 
 def imprimir_factura(factura, nombre, apellido, email, dni, cantidad, sector, monto_unitario):
@@ -630,29 +653,28 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
                         print(f"\nSectores disponibles para {evento['artista']}:")
                         sectores = evento['sectores']
                         lista_sectores = []
+                        numero = 0
                         
-                        # Mostramos opciones
                         for nom, dat in sectores.items():
                             disp = dat.get('disponibles', dat['cantidad'])
-                            print(f"- {nom}: ${dat['precio']} (Disponibles: {disp})")
+                            numero += 1
+                            print(f"{numero}. {nom}: ${dat['precio']} (Disponibles: {disp})")
                             lista_sectores.append(nom)
                         
-                        sector_elegido = input("\nIngrese el nombre exacto del sector: ")
+                        opcion_sector = validar_numero(input("\nIngrese el número del sector: ")) - 1
                         
-                        if sector_elegido in sectores:
+                        if 0 <= opcion_sector < len(lista_sectores):
+                            sector_elegido = lista_sectores[opcion_sector]
                             datos_sector = sectores[sector_elegido]
                             disponibles = datos_sector.get('disponibles', datos_sector['cantidad'])
                             
                             if disponibles >= cantidad_entradas:
-                                # Actualizar memoria
                                 datos_sector['disponibles'] = disponibles - cantidad_entradas
                                 evento['sectores'][sector_elegido] = datos_sector
                                 
-                                # Guardar evento actualizado
                                 json.dump(evento, salida)
                                 salida.write("\n")
 
-                                # Registrar venta
                                 factura = obtener_siguiente_factura()
                                 venta = {
                                     "indice": indice_objetivo, 
@@ -662,7 +684,7 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
                                     "numero_dni": numero_dni, 
                                     "numero_entradas": cantidad_entradas, 
                                     "numero_factura": factura,
-                                    "sector": sector_elegido # IMPORTANTE: Guardamos el sector
+                                    "sector": sector_elegido
                                 }
                                 guardar_venta_en_archivo(venta)
 
@@ -671,15 +693,15 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
                                 venta_realizada = True
                             else:
                                 print(f"No hay suficientes entradas en {sector_elegido}.")
-                                salida.write(linea) # Sin cambios
+                                salida.write(linea) #Sin cambios
                         else:
-                            print("El sector ingresado no existe.")
-                            salida.write(linea) # Sin cambios
+                            print("Número de sector inválido.")
+                            salida.write(linea) #Sin cambios
                     else:
-                        salida.write(linea) # No es el evento buscado
+                        salida.write(linea)
                     
                     numero_linea += 1
-                except json.JSONDecodeError:
+                except:
                     salida.write(linea)
             else:
                 salida.write(linea)
@@ -713,10 +735,11 @@ def vender_entrada(indice_objetivo, nombre, apellido, email, numero_dni, cantida
             print("Evento no encontrado.")
 
 
+
 def buscar_venta(email, factura):
     """Busca una venta en el JSON por email y factura y devuelve datos incluyendo sector"""
     try:
-        arch = open("ventas.jsonl", "r")
+        arch = open("operaciones.jsonl", "r")
         linea = arch.readline()
         
         while linea != "":
@@ -725,14 +748,13 @@ def buscar_venta(email, factura):
                 try:
                     venta = json.loads(linea)
                     if venta['email'] == email and int(venta['numero_factura']) == factura:
-                        # Recuperamos el sector si existe, sino None
                         return venta['indice'], venta['numero_entradas'], venta['nombre'], venta['apellido'], venta.get('sector')
-                except json.JSONDecodeError:
+                except:
                     pass
             linea = arch.readline()
-        return False, False, False, False, False
+        return False
     except OSError:
-        return False, False, False, False, False
+        print("Error en la lectura del archivo")
     finally:
         try:
             arch.close()
@@ -753,8 +775,7 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
         print("No puede cancelar más entradas de las que compró.")
         return
     
-    # Si la venta es vieja y no tiene sector, no podemos devolverla automáticamente con seguridad
-    if not sector_venta:
+    if sector_venta == "":
         print("Esta venta no tiene sector registrado (formato antiguo). No se puede procesar devolución automática.")
         return
 
@@ -772,7 +793,6 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
                     
                     if numero_linea == indice_evento:
                         if sector_venta in evento['sectores']:
-                            # Devolver entradas al sector
                             datos = evento['sectores'][sector_venta]
                             disp = datos.get('disponibles', datos['cantidad'])
                             evento['sectores'][sector_venta]['disponibles'] = disp + cantidad
@@ -793,7 +813,6 @@ def cancelar_entrada(email, numero_dni, factura, cantidad):
                 salida.write(linea)
             linea = entrada.readline()
 
-        # Registro negativo
         nueva_venta = {
             "indice": indice_evento, 
             "nombre": nombre, 
@@ -853,8 +872,8 @@ def ver_entradas_vendidas():
         if not tiene_eventos:
             print("No hay eventos registrados.")
         print("\n")
-    except FileNotFoundError:
-        print("No hay eventos registrados.\n")
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
     finally:
         try:
             arch.close()
@@ -873,7 +892,7 @@ def analisis_datos():
     try:
         # Calcular total vendidas
         arch = open("eventos.jsonl", "r")
-        total_vendidas = contar_entradas_vendidas_recursivo(arch)
+        total_vendidas = contar_entradas_vendidas(arch)
         arch.close()
         
         if total_vendidas == 0:
@@ -882,7 +901,7 @@ def analisis_datos():
         
         # Calcular recaudación
         arch = open("eventos.jsonl", "r")
-        total_recaudado = calcular_recaudacion_recursivo(arch)
+        total_recaudado = calcular_recaudacion(arch)
         arch.close()
         
         # Calcular promedio
@@ -890,7 +909,7 @@ def analisis_datos():
         
         # Encontrar evento más vendido
         arch = open("eventos.jsonl", "r")
-        max_vendidas, artista_max = encontrar_mas_vendido_recursivo(arch)
+        max_vendidas, artista_max = encontrar_mas_vendido(arch)
         arch.close()
         
         titulo = "\n▶   ANÁLISIS DE DATOS "
@@ -904,7 +923,7 @@ def analisis_datos():
         print("\n")
         
     except FileNotFoundError:
-        print("No hay eventos registrados.")
+        print("No se encontró el archivo", mensaje)
     except OSError as mensaje:
         print("Error al leer el archivo:", mensaje)
 
@@ -920,19 +939,20 @@ def busqueda_artista(artista):
             evento = evento_seleccionado(linea)
             if evento and artista in evento['artista'].lower():
                 encontrado = True
-                print("-" * 50)
-                print(f"Artista: {evento['artista']}")
-                print(f"Estadio: {evento['estadio']}")
-                print(f"Fecha: {evento['fecha']} - Hora: {evento['hora']}")
+                titulo = "\n▶   ARTISTA ENCONTRADO: "
+                print(titulo.ljust(80, "━"))
+                print(f"{'━':<3} {'Artista':<20} {'Estadio':<15} {'Fecha':<9} {'Hora':>8}")
+                print("━" * 80)
+                print(f"{evento['artista']:>16} {evento['estadio']:>19} {evento['fecha']:>14} {evento['hora']:>8}")
                 print("Sectores:")
                 for nom, datos in evento['sectores'].items():
-                    print(f" -> {nom}: ${datos['precio']}")
-                print("-" * 50)
+                    print(f" ━ {nom}: ${datos['precio']}")
+                print("\n")
             linea=arch.readline() 
         if not encontrado: 
             print("No se encontraron eventos para", artista)
-    except FileNotFoundError:
-        print("No se pudo abrir el archivo")
+    except FileNotFoundError as mensaje:
+        print("No se encontró el archivo", mensaje)
     finally:
         try:
             arch.close()
@@ -948,7 +968,7 @@ def mostrar_menu():
     print(titulo.ljust(40, "━"))
     print("1. Administración de eventos")
     print("2. Administración de entradas")
-    print("3. Ver ventas registradas")
+    print("3. Ver lista de operaciones")
     print("4. Salir")
 
 
@@ -967,36 +987,41 @@ def menu_eventos():
 
     opcion_eventos = validar_numero(input("Elija una opción: ")) - 1
     
+    # Mostrar eventos
     if opcion_eventos == 0:
         mostrar_eventos()
 
+    # Búsqueda por artista
     elif opcion_eventos == 1:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista a buscar: "))
         busqueda_artista(artista)
 
+    # Crear evento
     elif opcion_eventos == 2:
         artista = validar_no_es_vacio(input("Ingrese el nombre del artista: "))
         
-        # Mostramos los estadios disponibles antes de pedir que escriba uno
         print("\nEstadios disponibles:")
         try:
             e_arch = open("estadios.jsonl", "r")
             l = e_arch.readline()
+            numero = 0
             while l:
                 try:
-                    dat = json.loads(l)
-                    print(f"- {dat['estadio']}")
+                    datos = json.loads(l)
+                    numero+=1
+                    print(f"{numero}. {datos['estadio']}")
                 except: pass
                 l = e_arch.readline()
             e_arch.close()
-        except: print("No se pudo leer estadios.jsonl")
+        except: 
+            print("No se pudo leer estadios.jsonl")
 
-        estadio = validar_no_es_vacio(input("\nIngrese el nombre del estadio EXACTO: "))
+        estadio = validar_numero(input("\nIngrese el número del estadio: "))
         fecha = validar_fecha(input("Ingrese la fecha del evento (YYYY-MM-DD): "))
         hora = validar_hora(input("Ingrese la hora del evento (HH:MM): "))
-        # Precio y Cantidad ya no se piden, vienen del estadio
         crear_evento(artista, estadio, fecha, hora)
 
+    # Modificar evento
     elif opcion_eventos == 3:
         mostrar_eventos()
         cantidad = contar_eventos()
@@ -1007,6 +1032,7 @@ def menu_eventos():
             if 0 <= opcion_mod <= 4:
                 modificar_evento(indice, opcion_mod)
 
+    # Eliminar evento
     elif opcion_eventos == 4:
         mostrar_eventos()
         cantidad = contar_eventos()
@@ -1014,6 +1040,7 @@ def menu_eventos():
             indice = validar_indice(input("Ingrese el índice del evento a eliminar: "))
             eliminar_evento(indice)
 
+    # Volver al menú
     if opcion_eventos != 5:
         menu_eventos()
 
