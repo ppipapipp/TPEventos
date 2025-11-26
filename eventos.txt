@@ -1,4 +1,4 @@
-Taylor Swift;River Plate;2025-09-15;20:20;50000;10;2
+Taylor Swift;River Plate;2025-09-15;20:20;50000;2000;1990
 Bad bunny;Estadio Nacional;2023-12-01;22:00;70000;2000;1997
 Dua Lipa;Luna Park;2025-03-10;21:00;45000;1200;1193
 The Weeknd;Estadio unico;2025-05-25;20:30;80000;2500;2496
