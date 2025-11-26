@@ -1,0 +1,10 @@
+{"indice": 0, "nombre": "Juan", "apellido": "Perez", "email": "juan.perez@mail.com", "numero_dni": 11111111, "numero_entradas": 4, "numero_factura": 1}
+{"indice": 0, "nombre": "Maria", "apellido": "Gomez", "email": "maria.gomez@mail.com", "numero_dni": 22222222, "numero_entradas": 4, "numero_factura": 2}
+{"indice": 0, "nombre": "Carlos", "apellido": "Lopez", "email": "carlos.lopez@mail.com", "numero_dni": 33333333, "numero_entradas": 4, "numero_factura": 3}
+{"indice": 0, "nombre": "Carlos", "apellido": "Lopez", "email": "carlos.lopez@mail.com", "numero_dni": 33333333, "numero_entradas": -2, "numero_factura": 3}
+{"indice": 1, "nombre": "Sofia", "apellido": "Martinez", "email": "sofia.m@mail.com", "numero_dni": 44444444, "numero_entradas": 3, "numero_factura": 4}
+{"indice": 2, "nombre": "Lucas", "apellido": "Rodriguez", "email": "lucas.r@mail.com", "numero_dni": 55555555, "numero_entradas": 5, "numero_factura": 5}
+{"indice": 2, "nombre": "Ana", "apellido": "Fernandez", "email": "ana.f@mail.com", "numero_dni": 66666666, "numero_entradas": 2, "numero_factura": 6}
+{"indice": 3, "nombre": "Pedro", "apellido": "Sanchez", "email": "pedro.s@mail.com", "numero_dni": 77777777, "numero_entradas": 6, "numero_factura": 7}
+{"indice": 3, "nombre": "Pedro", "apellido": "Sanchez", "email": "pedro.s@mail.com", "numero_dni": 77777777, "numero_entradas": -2, "numero_factura": 7}
+{"indice": 6, "nombre": "Laura", "apellido": "Diaz", "email": "laura.d@mail.com", "numero_dni": 88888888, "numero_entradas": 2, "numero_factura": 8}

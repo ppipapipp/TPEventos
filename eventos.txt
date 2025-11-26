@@ -1,7 +1,0 @@
-Taylor Swift;River Plate;2025-09-15;20:20;50000;2000;1990
-Bad bunny;Estadio Nacional;2023-12-01;22:00;70000;2000;1997
-Dua Lipa;Luna Park;2025-03-10;21:00;45000;1200;1193
-The Weeknd;Estadio unico;2025-05-25;20:30;80000;2500;2496
-Bruno Mars;Movistar Arena;2025-07-18;21:00;60000;1800;1800
-Billie Eilish;Estadio Velez;2025-09-05;20:00;55000;2200;2200
-Metallica;River Plate;2026-02-14;21:30;90000;3000;2998
